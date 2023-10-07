@@ -1,0 +1,6 @@
+[book]
+authors = ["varixer"]
+language = "en"
+multilingual = false
+src = "src"
+title = "RAP"
