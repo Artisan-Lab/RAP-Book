@@ -3,4 +3,4 @@ authors = ["varixer"]
 language = "en"
 multilingual = false
 src = "src"
-title = "RAP"
+title = "Rust Analysis Platform"
