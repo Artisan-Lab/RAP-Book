@@ -9,4 +9,6 @@
   - [Chapter 4.3. Value-flow Analysis](./4.3-value.md)
   - [Chapter 4.4. Control-flow Analysis](./4.4-control.md)
 - [Chapter 5. Sample Applications](./5-application.md)
+  - [Chapter 5.1. Dangling Pointer Bug Detection](./5.1-dangling.md)
+  - [Chapter 5.2. Memory Leakage Detection](./5.2-memleak.md)
 - [Chapter 6. Case Study](./6-case.md)
