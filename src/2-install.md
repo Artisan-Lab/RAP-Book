@@ -94,6 +94,12 @@ It performs the following phases:
     export RUSTFLAGS="-L ${RAP_DIR}/rust/build/${HOST_TRIPLE}/stage2/lib"
     ``` 
 When complete, `01-install-rap-cargo.sh` will link several programs into `$PREFIX/bin`: `rap`, the `rustc` wrapper program for Rust Analysis Platform; `rap-cargo`, the subcomponent in `cargo` to invoke `rap`.
+
+For MaOS users, you may need to manually export z3 related headers and libraries.
+```
+export C_INCLUDE_PATH=/opt/homebrew/Cellar/z3/4.12.6/include:$C_INCLUDE_PATH
+```
+
 #### 5. Build and install rap-llvm
 `02-install-rap-llvm.sh` can also option the compilation of `rap-llvm`. This binary will be compiled and automated added to your system environment.
 
