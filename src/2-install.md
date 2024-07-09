@@ -100,37 +100,6 @@ For MaOS users, you may need to manually export z3 related headers and libraries
 export C_INCLUDE_PATH=/opt/homebrew/Cellar/z3/4.12.6/include:$C_INCLUDE_PATH
 ```
 
-#### 5. Build and install rap-llvm
-`02-install-rap-llvm.sh` can also option the compilation of `rap-llvm`. This binary will be compiled and automated added to your system environment.
-
-```shell
-# The script can be run directly on most unix-like systems, such as Macintosh, Linux, etc.
-./02-install-rap-llvm.sh
-```
-
-It performs the following phases:
-- PHASE1: Building `rap-llvm` by `CMake` and add it to local bins
-    ```shell
-    # Generate building directory
-    cd rap-llvm && mkdir build
-
-    # Build `rap-llvm`
-    export RAP_DIR=$(dirname "$(readlink -f "$0")")
-
-    cmake -DCMAKE_BUILD_TYPE=Debug \
-        -DCMAKE_DEPENDS_USE_COMPILER=FALSE \
-        -DCMAKE_INSTALL_PREFIX=${RAP_DIR}/build \
-        -G "CodeBlocks - Unix Makefiles" \
-        -B "${RAP_DIR}/build"\
-        -S "${RAP_DIR}"
-
-    cmake --build "${RAP_DIR}/build" \
-        --target rap-llvm -v -- -j 9 
-    ```
-- PHASE2: Writing for user shell
-
-When complete, `02-install-rap-llvm.sh` will link `rap-llvm` (the tool to scan llvm-ir for rust crate and check the usage of heap resource) into `$PREFIX/bin`. 
-
 ### Building on Windows
 **Note: we highly do not advice the user to use the windows as host platform.**
 
