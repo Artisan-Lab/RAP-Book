@@ -98,6 +98,7 @@ When complete, `01-install-rap-cargo.sh` will link several programs into `$PREFI
 For MaOS users, you may need to manually export z3 related headers and libraries.
 ```
 export C_INCLUDE_PATH=/opt/homebrew/Cellar/z3/4.12.6/include:$C_INCLUDE_PATH
+cp /opt/homebrew/Cellar/z3/4.12.6/lib/libz3.dylib /usr/local/lib
 ```
 
 ### Building on Windows
