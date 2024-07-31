@@ -12,5 +12,5 @@
   - [Control-flow Analysis](./4.4-control.md)
 - [Sample Applications](./5-application.md)
   - [Dangling Pointer Bug Detection](./5.1-dangling.md)
-  - [Memory Leakage Detection](./5.2-memleak.md)
+  - [Memory Leak Detection](./5.2-memleak.md)
 - [Case Study](./6-case.md)
