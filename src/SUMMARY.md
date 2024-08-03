@@ -13,4 +13,4 @@
 - [Sample Applications](./5-application.md)
   - [Dangling Pointer Bug Detection](./5.1-dangling.md)
   - [Memory Leak Detection](./5.2-memleak.md)
-- [Case Study](./6-case.md)
+  - [Unsafe Code Propagation Analysis](./5.3-unsafe.md)
