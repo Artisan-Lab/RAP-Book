@@ -1,4 +1,4 @@
-# Chatper 4 Preliminary: Understand Compiler Internals
+# Chatper 4. Preliminary: Understand Compiler Internals
 
 ## Toy Example
 
