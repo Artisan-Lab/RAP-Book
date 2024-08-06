@@ -6,7 +6,6 @@
   - [Frontend](./3.1-frontend.md)
   - [Backend](./3.2-backend.md) 
 - [Preliminaries](./4-preliminary.md)
-  - [Key Data Structures](./4.1-data_struct.md) 
 - [Basic Modules](./5-modules.md)
   - [Alias Analysis](./5.1-alias.md)
   - [Interval Analysis](./5.2-interval.md)
