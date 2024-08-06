@@ -1,4 +1,4 @@
-# Chapter 2: Installation Guide
+# Chapter 2. Installation Guide
 
 ## Quick Start
 ### Installing from Source Code
