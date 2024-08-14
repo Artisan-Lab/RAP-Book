@@ -11,6 +11,7 @@
   - [Interval Analysis](./5.2-interval.md)
   - [Value-flow Analysis](./5.3-value.md)
   - [Control-flow Analysis](./5.4-control.md)
+  - [Heap-item Type Analysis](./5.5-type.md)
 - [Sample Applications](./6-application.md)
   - [Dangling Pointer Bug Detection](./6.1-dangling.md)
   - [Memory Leak Detection](./6.2-memleak.md)
