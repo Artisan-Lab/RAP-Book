@@ -26,7 +26,7 @@ git clone https://github.com/Artisan-Lab/RAP.git
 The script performs two steps:
 - Compile and install RAP as a cargo plugin
 ```shell
-cd rap
+cd RAP
 cargo install --path .
 ```
 
@@ -43,7 +43,7 @@ cargo --list
 
 - Configure the library environment for Rust dev
 ```
-   export LD_LIBRARY_PATH="/Users/$HOME/.rustup/toolchain/nightly-2023-10-05-aarch64-apple-darwin/lib" 
+export LD_LIBRARY_PATH="/Users/$HOME/.rustup/toolchain/nightly-2023-10-05-aarch64-apple-darwin/lib" 
 ``` 
 
 ### Uninstall
