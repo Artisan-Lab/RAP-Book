@@ -1,4 +1,4 @@
-# Chapter 3.1. Code Analysis in The Frontend 
+# Chapter 3 Framework for Rust Code Analysis
 Traditionally, performing code analysis requires modifying the compiler source code to add new passes. 
 Developers then need to recompile the compiler to activate these new passes, which can be cumbersome. 
 The Rust compiler offers a more portable way to conduct code analysis using the [rustc_driver](https://rustc-dev-guide.rust-lang.org/rustc-driver.html).
