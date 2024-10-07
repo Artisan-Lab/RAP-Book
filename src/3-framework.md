@@ -1,4 +1,4 @@
-# Chapter 3 Framework of Rust Analysis Platform
+# Chapter 3. Framework of RAP
 Traditionally, performing code analysis requires modifying the compiler source code to add new passes. 
 Developers then need to recompile the compiler to activate these new passes, which can be cumbersome. 
 The Rust compiler offers a more portable way to conduct code analysis using the [rustc_driver](https://rustc-dev-guide.rust-lang.org/rustc-driver.html).
