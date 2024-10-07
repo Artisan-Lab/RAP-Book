@@ -14,5 +14,5 @@
   - [Dangling Pointer Detection](./6.1-dangling.md)
   - [Memory Leakage Detection](./6.2-memleak.md)
   - [Unsafe Code Audit](./6.3-unsafe.md)
-  - [Performance Issue Detection](./6.4-perf.md)
-  - [Concurrency Bug Detection(./6.5-concurrency.md)
+  - [Inefficient Code Detection](./6.4-perf.md)
+  - [Concurrency Bug Detection](./6.5-concurrency.md)
