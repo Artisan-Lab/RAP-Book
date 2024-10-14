@@ -5,6 +5,16 @@
 * macOS (both x86_64 and aarch64 version)
 
 ## Preparation
+RAP is based on Rust version nightly-2024-06-30. You can install this version using the following command.
+```shell
+rustup install nightly-2024-06-30
+```
+
+If you have multiple Rust versions, please ensure the default version is set to nightly-2024-06-30.
+```
+rustup show
+```
+
 RAP requires the following software:
 * `git`
 * Rust (current version nightly-2023-10-05)
