@@ -16,3 +16,4 @@
   - [Unsafe Code Audit](./6.3-unsafe.md)
   - [Inefficient Code Detection](./6.4-perf.md)
   - [Concurrency Bug Detection](./6.5-concurrency.md)
+- [Utilities](./7-utilities.md)
