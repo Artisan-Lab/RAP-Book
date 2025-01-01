@@ -115,10 +115,16 @@ $$\text{init}(*p)\in \lbrace true, false \rbrace $$
 Example APIs: [MaybeUninit.assume_init()](https://doc.rust-lang.org/std/mem/union.MaybeUninit.html#method.assume_init), [Box::assume_init()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.assume_init)
 
 #### h) Integer
+Interger arithmatic should not overflow the max or the main value.
+**Single Value**
+$$ u8::MIN \leq u8(x) \geq u8::MAX $$
 
-$$ isize:MAX \leq isize(\text{binop} (x_1, x_2)) \geq isize:MIN $$
+Example API: [f32.to_int_unchecked()](https://doc.rust-lang.org/std/primitive.f32.html#method.to_int_unchecked)
 
-$$ usize:MAX \leq usize(\text{binop} (x_1, x_2)) \geq usize:MIN $$
+**Integer Arithmatic**
+$$ isize::MAX \leq isize(\text{binop} (x_1, x_2)) \geq isize::MIN $$
+
+$$ usize::MAX \leq usize(\text{binop} (x_1, x_2)) \geq usize::MIN $$
 
 Example APIs: [isize.add()](https://doc.rust-lang.org/std/primitive.isize.html#method.unchecked_add), [usize.add()](https://doc.rust-lang.org/std/primitive.usize.html#method.unchecked_add), [pointer.add(usize.add())](https://doc.rust-lang.org/std/primitive.pointer.html#method.add)
 
@@ -196,7 +202,7 @@ Implementing Pin for !Unpin is also valid in Rust, developers should not move th
 
 $$Pinned(*p) = true$$
 
-Example API: [Pin::new_unchecked()](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.new_unchecked)
+Example APIs: [Pin::new_unchecked()](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.new_unchecked),[Pin.into_inner_unchecked()](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.into_inner_unchecked), [Pin.map_unchecked()](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.map_unchecked), [Pin.get_unchecked_mut()](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.get_unchecked_mut), [Pin.map_unchecked_mut](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.map_unchecked_mut)
 
 #### q) I/O
 
@@ -204,7 +210,7 @@ $$\text{owned}(fd) = true$$ (there should be similar issues for other RAII resou
 
 $$\text{opened}(fd) = true$$
 
-Example API: [trait.FromRawFd::from_raw_fd()](https://doc.rust-lang.org/std/os/fd/trait.FromRawFd.html#tymethod.from_raw_fd), [UdpSocket::from_raw_socket()](https://doc.rust-lang.org/std/net/struct.UdpSocket.html#method.from_raw_socket)
+Example APIs: [trait.FromRawFd::from_raw_fd()](https://doc.rust-lang.org/std/os/fd/trait.FromRawFd.html#tymethod.from_raw_fd), [UdpSocket::from_raw_socket()](https://doc.rust-lang.org/std/net/struct.UdpSocket.html#method.from_raw_socket)
 
 #### r) volatile
 
@@ -212,5 +218,5 @@ There are specific APIs for volatile memory access in std-lib, like [ptr::read_v
 
 $$volatile(*p) = false$$
 
-Example API: [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html), [ptr::write()](https://doc.rust-lang.org/std/ptr/fn.write.html)
+Example APIs: [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html), [ptr::write()](https://doc.rust-lang.org/std/ptr/fn.write.html)
 
