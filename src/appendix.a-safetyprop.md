@@ -86,6 +86,7 @@ Point-to implies non-dangling and non-null(not sure, need to be confirmed).
 There are two useful derived safety properties based on the primitives.
 
 **Bounded Address (derived)**
+
 $$ \text{typeof}(*(p + \text{sizeof}(T) * offset))  = T $$
 
 Example API: [ptr::offset()](https://doc.rust-lang.org/std/primitive.pointer.html#method.offset-1)
