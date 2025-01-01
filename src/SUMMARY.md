@@ -17,3 +17,6 @@
   - [Inefficient Code Detection](./6.4-perf.md)
   - [Concurrency Bug Detection](./6.5-concurrency.md)
 - [Utilities](./7-utilities.md)
+  - [Logging](./7.1-log.md)
+- [Appendix](./) 
+  - [A: Privimitive Safety Properties](./A-safetyprop) 
