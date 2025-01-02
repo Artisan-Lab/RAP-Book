@@ -6,7 +6,7 @@ This document presents a draft outlining the fundamental safety properties essen
 [MCP759](https://github.com/rust-lang/compiler-team/issues/759)  
 [std-contracts-2025h1](https://rust-lang.github.io/rust-project-goals/2025h1/std-contracts.html)  
 
-## Overall Idea
+## 1. Overall Idea
 In contract design, safety properties can be categorized into two types:
 
 **Precondition**: Safety requirements that must be satisfied before invoking an unsafe API. These represent the fundamental conditions for safely using the API.
@@ -19,7 +19,7 @@ While preconditions and postconditions are foundational to safety reasoning, the
 
 In practice, a safety property may correspond to a precondition, postcondition, or hazard. To address the ambiguity of certain high-level or ad hoc safety property descriptions, we propose breaking them down into primitive safety requirements. By collecting and analyzing commonly used safety descriptions, we aim to provide a clearer framework for understanding and documenting these properties. The following sections will elaborate on these details.
 
-## Summary of Primitive SPs
+## 2. Summary of Primitive SPs
 
 | ID  | Primitive SP | Usage | Example API |
 |---|---|---|---|
@@ -47,9 +47,9 @@ In practice, a safety property may correspond to a precondition, postcondition, 
 | 22  | NonVolatile(p) | precond | [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html) |
 
 
-## Safety Property Analysis
+## 3. Safety Property Analysis
 
-### I. Layout
+### 3.1. Layout
 Refer to the document of [type-layout](https://doc.rust-lang.org/reference/type-layout.html), there are three components related to layout: alignment, size, and padding.
 
 #### Alignment
@@ -85,7 +85,7 @@ A safety property may require the type `T` has no padding. We can formulate the 
 
 Example API: intrinsic [raw_eq()](https://doc.rust-lang.org/std/intrinsics/fn.raw_eq.html)
 
-### II. Pointer Validity
+### 3.2. Pointer Validity
 
 Referring to the [pointer validity](https://doc.rust-lang.org/std/ptr/index.html#safety) documentation, whether a pointer is valid depends on the context of its usage, and the criteria vary across different APIs. To better describe pointer validity and reduce ambiguity, we break down the concept into several primitive components.
 
@@ -150,7 +150,7 @@ It may also require the two pointers do not overlap with respect to $T\times cou
 
 Example APIs: [ptr::copy_nonoverlapping()](https://doc.rust-lang.org/std/ptr/fn.copy_nonoverlapping.html), [ptr.copy_from_nonoverlapping](https://doc.rust-lang.org/core/primitive.pointer.html#method.copy_from_nonoverlapping)
  
-### III. Content
+### 3.3. Content
 
 #### Integer
 
@@ -211,7 +211,7 @@ $$\text{unwrap}(x) = T, T \in \lbrace Ok, Err, Some, None \rbrace $$
 
 Example APIs: [Option::unwrap_unchecked()](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_unchecked), [Result::unwrap_unchecked()](https://doc.rust-lang.org/core/result/enum.Result.html#method.unwrap_unchecked), [Result::unwrap_err_unchecked()](https://doc.rust-lang.org/core/result/enum.Result.html#method.unwrap_err_unchecked)
 
-### IV. Aliases
+### 3.4. Aliases
 This category relates to the core mechanism of Rust which aims to avoid shared mutable aliases and achieve automated memory deallocation. 
 
 #### k) Onwership
@@ -258,7 +258,7 @@ $$\text{lifetime}(*p)>\'a$$
 
 Example APIs: [AtomicPtr::from_ptr()](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicPtr.html#method.from_ptr), [AtomicBool::from_ptr()](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicBool.html#method.from_ptr), [CStr::from_ptr()](https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.from_ptr)
 
-### V. More
+### 3.5. More
 
 #### Trait
 If the parameter has implemented some trait, it is guaranteed to be safe. 
