@@ -127,25 +127,42 @@ Example APIs: [ptr::copy_nonoverlapping()](https://doc.rust-lang.org/std/ptr/fn.
 
 When converting a value `x` to an interger, the value should not be greater the max or less the min value that can be represented by the integer type `T`.
 
-**psp-10: ValueRange(x, T)** $$T::MIN \leq x \geq T::MAX $$
+**psp-10: ValidInt(x, T)** $$T::MIN \leq x \geq T::MAX $$
 
 Example API: [f32.to_int_unchecked()](https://doc.rust-lang.org/std/primitive.f32.html#method.to_int_unchecked)
 
 Some APIs may require the value `x` of an integer type should not be zero.
-**psp-10.1: ValueRange(x, !0)** $$x != 0 $$
-[NonZero::from_mut_unchecked()](https://doc.rust-lang.org/beta/std/num/struct.NonZero.html#tymethod.from_mut_unchecked)
+
+**psp-10.1: ValidInt(x, !0)** $$x != 0 $$
+
+Example API: [NonZero::from_mut_unchecked()](https://doc.rust-lang.org/beta/std/num/struct.NonZero.html#tymethod.from_mut_unchecked)
 
 The result of interger arithmatic of two values `x` and `y` of type `T` should not overflow the max or the main value.
-**psp-10.2: ValueRange(x, y, T, binop)** $$T:MAX \leq isize(\text{binop} (x, y)) \geq T::MIN $$
 
-Similarly, unary arithmatic operations have similar requirements.
-**psp-10.3: ValueRange(x, T, uop)** $$T:MAX \leq isize(\text{uop} (x)) \geq T::MIN $$
+**psp-10.2: ValidInt(binop, x, y, T)** $$T:MAX \leq isize(\text{binop} (x, y)) \geq T::MIN $$
 
 Example APIs: [isize.add()](https://doc.rust-lang.org/std/primitive.isize.html#method.unchecked_add), [usize.add()](https://doc.rust-lang.org/std/primitive.usize.html#method.unchecked_add), [pointer.add(usize.add())](https://doc.rust-lang.org/std/primitive.pointer.html#method.add)
 
+Unary arithmatic operations have similar requirements.
+
+**psp-10.3: ValidInt(uop, x, T)** $$T:MAX \leq isize(\text{uop} (x)) \geq T::MIN $$
+
 #### i) String
-The content must be a valid string. There are two types of string in Rust, [String](https://doc.rust-lang.org/std/string/struct.String.htm) which requires valid utf-8 format, and [CStr](https://doc.rust-lang.org/std/ffi/struct.CStr.html) for interacting with foreign functions.
-Example APIs: [String::from_utf8_unchecked()](https://doc.rust-lang.org/std/string/struct.String.html#method.from_utf8_unchecked), [CStr::from_ptr()](https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.from_ptr)
+There are two types of string in Rust, [String](https://doc.rust-lang.org/std/string/struct.String.htm) which requires valid utf-8 format, and [CStr](https://doc.rust-lang.org/std/ffi/struct.CStr.html) for interacting with foreign functions.
+
+The safety properties of String generally requires the bytes contained in a vector `v` or pointed by a pointer `p` of length `len` should be a valid utf-8.
+
+**psp-11: ValidString(x)** $$x\in utf-8$$
+
+**psp-11.1: ValidString(p, len)** $$x\in utf-8$$
+
+Example API: [String::from_utf8_unchecked()](https://doc.rust-lang.org/std/string/struct.String.html#method.from_utf8_unchecked), [String::from_raw_parts()](https://doc.rust-lang.org/std/string/struct.String.html#method.from_raw_parts), [String.as_bytes_mut()](https://doc.rust-lang.org/std/string/struct.String.html#method.as_bytes_mut)
+
+The safety properties of CString generally requires the bytes of a u8 slice or pointed by a pointer `p` shoule contains a null terminator within isize::MAX from `p`.
+
+**psp-12: ValidCStr(p, len)** $$\exist offset, s.t., *(p + offset) = '\0' \&\& \text{ValidInt}(offset, isize) $$
+
+Example API: [CStr::from_bytes_with_nul_unchecked()](https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.from_bytes_with_nul_unchecked), [CStr::from_ptr()](https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.from_ptr)
 
 #### Initialization
 A memory of type T pointed by a pointer is either initialized or not. This is a binary primitive property.
