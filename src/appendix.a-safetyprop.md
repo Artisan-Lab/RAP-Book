@@ -277,7 +277,7 @@ Refer to the [Rustnomicon](https://doc.rust-lang.org/nomicon/send-and-sync.html)
 
 For Send, it requires: 
 
-$$\forall f\in St, \texttt{refcount}(f) = false$$
+$$\forall field \in T, \texttt{refcount}(field) = false$$
 
 (TO FIX: This should be change to a recursive form.)
 
@@ -285,7 +285,7 @@ $$\forall f\in St, \texttt{refcount}(f) = false$$
 
 For Sync, it requires: 
 
-$$\forall f\in St, \texttt{interiormut}(f) = false$$
+$$\forall field \in T, \texttt{interiormut}(field) = false$$
 
 (TO FIX: This should be change to a recursive form.)
 
