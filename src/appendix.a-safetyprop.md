@@ -117,7 +117,7 @@ Example APIs: [ptr::copy_from()](https://doc.rust-lang.org/std/ptr/fn.copy.html)
 
 It may also require the two pointers do not overlap with respect to $T\times count$: 
 
-**psp-9.1: NonOverlap($p_{dst}$, $p_{src}$, T, count)**: $$ |p_{dst} - p_{src}| > \text{sizeof}(T) * count $$
+**psp-9.1: NonOverlap**($p_{dst}$, $p_{src}$, T, count): $$ |p_{dst} - p_{src}| > \text{sizeof}(T) * count $$
 
 Example APIs: [ptr::copy_nonoverlapping()](https://doc.rust-lang.org/std/ptr/fn.copy_nonoverlapping.html), [ptr.copy_from_nonoverlapping](https://doc.rust-lang.org/core/primitive.pointer.html#method.copy_from_nonoverlapping)
  
