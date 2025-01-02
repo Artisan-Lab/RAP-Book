@@ -198,7 +198,7 @@ A safety property may require the memory of type `T` pointed by a pointer `p` is
 
 **psp-13: Init(p, T)**
 
-$$\text{init}(*p, T) = \lbrace true \rbrace $$
+$$\text{init}(*p, T) = true $$
 
 Example APIs: [MaybeUninit.assume_init()](https://doc.rust-lang.org/std/mem/union.MaybeUninit.html#method.assume_init), [Box::assume_init()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.assume_init)
 
