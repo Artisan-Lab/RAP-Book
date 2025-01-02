@@ -63,7 +63,7 @@ Refering to the documents about [pointer validity](https://doc.rust-lang.org/std
 #### d) Address (Primitive)
 The memory address that the pointer points to. A safety property may require the pointer address to be null, namely `non-null`, because the address of a null pointer is undefined. We can fomulate the property as 
 
-**psp-4: NonNull(p)**: $$ p != null $$
+**psp-4: NonNull(p)**: $$p != null$$
 
 Example APIs: [NonNull::new_unchecked()](https://doc.rust-lang.org/std/ptr/struct.NonNull.html#method.new_unchecked), [Box::from_non_null()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_non_null)
 
@@ -72,7 +72,7 @@ To indicate whether the memory address pointed by the pointer is available to us
 
 In practice, an API may require a pointer `p` that points to a type `T` to be non-dangling.
 **psp-5: NonDangling(p, T)**: 
-    \begin{cases}
+$$ \begin{cases}
       \text{allocator}(p) = x, s.t., x \in \lbrace GlobalAllocator, OtherAllocator, stack \rbrace,  & \text{\text{sizeof}(T) > 0} \\
       true, & \text{\text{sizeof}(T) = 0}
     \end{cases}
@@ -84,11 +84,11 @@ Example API: [ptr::offset()](https://doc.rust-lang.org/beta/std/primitive.pointe
 
 Besides, some properties may require the allocator to be consistent, i.e., the memory address pointed by the pointer `p` should be allocated by a specific allocator `A`.
 
-**psp-6: AllocaConsistency(p, A)**: $$ \text{allocator}(p) = A $$
+**psp-6: AllocaConsistency(p, A)**: $$\text{allocator}(p) = A $$
 
 If the allocator `A` is omitted, it generally refers the global allocator.
 
-**psp-6.1: AllocaConsistency(p)**: $$ \text{allocator}(p) = GlobalAllocator $$
+**psp-6.1: AllocaConsistency(p)**: $$\text{allocator}(p) = GlobalAllocator $$
 
 Example APIs: [Arc::from_raw()](https://doc.rust-lang.org/std/sync/struct.Arc.html#method.from_raw), [Arc::from_raw_in()](https://doc.rust-lang.org/std/sync/struct.Arc.html#method.from_raw_in), [Box::from_raw_in()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_raw_in)
 
