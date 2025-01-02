@@ -123,7 +123,7 @@ Example APIs: [ptr::copy_nonoverlapping()](https://doc.rust-lang.org/std/ptr/fn.
  
 ### III. Content
 
-#### h) Integer
+#### Integer
 
 When converting a value `x` to an interger, the value should not be greater the max or less the min value that can be represented by the integer type `T`.
 
@@ -147,7 +147,7 @@ Unary arithmatic operations have similar requirements.
 
 **psp-10.3: ValidInt(uop, x, T)** $$T:MAX \leq isize(\text{uop} (x)) \geq T::MIN $$
 
-#### i) String
+#### String
 There are two types of string in Rust, [String](https://doc.rust-lang.org/std/string/struct.String.htm) which requires valid utf-8 format, and [CStr](https://doc.rust-lang.org/std/ffi/struct.CStr.html) for interacting with foreign functions.
 
 The safety properties of String generally requires the bytes contained in a vector `v` or pointed by a pointer `p` of length `len` should be a valid utf-8.
@@ -156,7 +156,8 @@ The safety properties of String generally requires the bytes contained in a vect
 
 **psp-11.1: ValidString(p, len)** $$x\in utf-8$$
 
-Example API: [String::from_utf8_unchecked()](https://doc.rust-lang.org/std/string/struct.String.html#method.from_utf8_unchecked), [String::from_raw_parts()](https://doc.rust-lang.org/std/string/struct.String.html#method.from_raw_parts), [String.as_bytes_mut()](https://doc.rust-lang.org/std/string/struct.String.html#method.as_bytes_mut)
+Example APIs: [String::from_utf8_unchecked()](https://doc.rust-lang.org/std/string/struct.String.html#method.from_utf8_unchecked), [String::from_raw_parts()](https://doc.rust-lang.org/std/string/struct.String.html#method.from_raw_parts), [String.as_bytes_mut()](https://doc.rust-lang.org/std/string/struct.String.html#method.as_bytes_mut)(This API introduces hazard).
+
 
 The safety properties of CString generally requires the bytes of a u8 slice or pointed by a pointer `p` shoule contains a null terminator within isize::MAX from `p`.
 
@@ -165,16 +166,20 @@ The safety properties of CString generally requires the bytes of a u8 slice or p
 Example API: [CStr::from_bytes_with_nul_unchecked()](https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.from_bytes_with_nul_unchecked), [CStr::from_ptr()](https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.from_ptr)
 
 #### Initialization
-A memory of type T pointed by a pointer is either initialized or not. This is a binary primitive property.
+A safety property may require the memory of type `T` pointed by a pointer `p` is initialized.
 
-$$\text{init}(*p)\in \lbrace true, false \rbrace $$
+**psp-13: Init(p, T)**
+
+$$\text{init}(*p, T) = \lbrace true \rbrace $$
 
 Example APIs: [MaybeUninit.assume_init()](https://doc.rust-lang.org/std/mem/union.MaybeUninit.html#method.assume_init), [Box::assume_init()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.assume_init)
 
+#### Unwrap
 
-#### j) Unwrap
+Such safety properties relate to the monadic types, including [Option](https://doc.rust-lang.org/std/option/enum.Option.html) and [Result](https://doc.rust-lang.org/std/result/enum.Result.html), and they require the value after unwarpping should be of a particular type.
 
-$$\text{enum}(T)\in \lbrace Ok, Err, Some, None \rbrace $$
+**psp-14: Unwrap(x, T)**
+$$\text{Unwrap}(x) = T, T \in \lbrace Ok, Err, Some, None \rbrace $$
 
 Example APIs: [Option::unwrap_unchecked()](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_unchecked), [Result::unwrap_unchecked()](https://doc.rust-lang.org/core/result/enum.Result.html#method.unwrap_unchecked), [Result::unwrap_err_unchecked()](https://doc.rust-lang.org/core/result/enum.Result.html#method.unwrap_err_unchecked)
 
@@ -184,31 +189,34 @@ This category relates to the core mechanism of Rust which aims to avoid shared m
 #### k) Onwership
 Let one value has two owners at the same program point is vulnerable to double free. Refer to the traidional vulnerbility of [mem::forget()](https://doc.rust-lang.org/std/mem/fn.forget.html) compared to [ManuallyDrop](https://doc.rust-lang.org/std/mem/struct.ManuallyDrop.html). The property generally relates to convert a raw pointer to an ownership, and it can be represented as:
 
-$$\text{owner}(*p) = \lbrace true, false \rbrace $$
+**psp-15: NotOwned(p)**
+$$\text{HasOwner}(*p) = false $$
 
 Example APIs: [Box::from_raw()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_raw), [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html), [ptr::read_volatile()](https://doc.rust-lang.org/std/ptr/fn.read_volatile.html)
 
 #### m) Alias
-There are six types of alias:
+There are six types of pointers to a value x, depending on the mutabality and ownership.
 
-$$\text{pointto}(V) = \bigcup p | p\in \lbrace owner, owner_{mut}, ref, ref_{mut}, ptr, ptr_{mut} \rbrace $$
+**psp-16: Alias(p)**
+$$\text{pointer}(x) = \bigcup p | p\in \lbrace owner, owner_{mut}, ref, ref_{mut}, ptr, ptr_{mut} \rbrace $$
 
 The exclusive mutability principle of Rust requires that if a value has a mutable alias at one program point, it must not have other aliases at that program point. Otherwise, it may incur unsafe status. We need to track the particular unsafe status and avoid unsafe behaviors. For example, the follow status are vulnerable:
 
-$$ \text{pointto}(V) = owner_{mut} \cup ptr \cup ref $$
+$$ \text{pointer}(x) = owner_{mut} \cup ptr \cup ref $$
 
-Because it violates the exclusive mutability principle requires $owner_{mut}$ and $ref$ should not exist at the same program point.
+Because it violates the exclusive mutability principle requires \\(owner_{mut}\\) and \\(ref\\) should not exist at the same program point.
 
-$$ \text{pointto}(V) = owner_{mut} \cup ptr_{mut} \cup ref_{mut} $$
+$$ \text{pointer}(x) = owner_{mut} \cup ptr_{mut} \cup ref_{mut} $$
 
-Because it violates the exclusive mutability principle requires $owner_{mut}$ and $ref_{mut}$ should not exist at the same program point.
+Because it violates the exclusive mutability principle requires\\(owner_{mut}\\) and \\(ref_{mut}\\) should not exist at the same program point.
 
 Example APIs: [pointer.as_mut()](https://doc.rust-lang.org/std/primitive.pointer.html#method.as_mut), [pointer.as_ref()](https://doc.rust-lang.org/std/primitive.pointer.html#method.as_ref-1), [pointer.as_ref_unchecked()](https://doc.rust-lang.org/std/primitive.pointer.html#method.as_ref_unchecked-1)
 
-#### l) Lifetime
+#### Lifetime
 
-The property generally requires the lifetime of a raw pointer must be valid for both reads and writes for the whole lifetime 'a.
+The property generally requires the lifetime of a raw pointer `p` must be valid for both reads and writes for the whole lifetime 'a.
 
+**psp-16: Lifetime(p, 'a)**
 $$\text{lifetime}(*p)>\'a$$
 
 Example APIs: [AtomicPtr::from_ptr()](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicPtr.html#method.from_ptr), [AtomicBool::from_ptr()](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicBool.html#method.from_ptr), [CStr::from_ptr()](https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.from_ptr)
