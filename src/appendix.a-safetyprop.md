@@ -261,10 +261,10 @@ Example APIs: [AtomicPtr::from_ptr()](https://doc.rust-lang.org/std/sync/atomic/
 ### 3.5. More
 
 #### Trait
-If the parameter has implemented some trait, it is guaranteed to be safe. 
+If the type `T` of a parameter has implemented some traits, it is guaranteed to be safe. 
 
 **psp-18: Trait(T)**
-$$\text{trait}(T) = \lbrace Copy, Unpin, Send, Sync \rbrace $$
+$$t \in \text{trait}(T), s.t., t \in \lbrace Copy, Unpin, Send, Sync \rbrace $$
 
 Example APIs: [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html), [ptr::read_volatile()](https://doc.rust-lang.org/std/ptr/fn.read_volatile.html), [Pin::new_unchecked()](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.new_unchecked)
 
