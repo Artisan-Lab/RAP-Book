@@ -207,7 +207,7 @@ Example APIs: [MaybeUninit.assume_init()](https://doc.rust-lang.org/std/mem/unio
 Such safety properties relate to the monadic types, including [Option](https://doc.rust-lang.org/std/option/enum.Option.html) and [Result](https://doc.rust-lang.org/std/result/enum.Result.html), and they require the value after unwarpping should be of a particular type.
 
 **psp-14: Unwrap(x, T)**
-$$\text{unwrap}(x) = T, T \in \lbrace Ok, Err, Some, None \rbrace $$
+$$\text{unwrap}(r) = x, s.t., typeof(x) \in \lbrace Ok, Err, Some, None \rbrace $$
 
 Example APIs: [Option::unwrap_unchecked()](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_unchecked), [Result::unwrap_unchecked()](https://doc.rust-lang.org/core/result/enum.Result.html#method.unwrap_unchecked), [Result::unwrap_err_unchecked()](https://doc.rust-lang.org/core/result/enum.Result.html#method.unwrap_err_unchecked)
 
