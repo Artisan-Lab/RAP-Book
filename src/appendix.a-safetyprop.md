@@ -103,7 +103,7 @@ In practice, an API may enforce that a pointer `p` to a type `T` must satisfy th
 
 **psp-5: NonDangling(p, T)**: 
 
-$$\text{allocator}(p) = x, s.t., \quad x \in \{ \text{GlobalAllocator}, \text{OtherAllocator}, \text{stack} \} || \text{sizeof}(T) = 0 $$ 
+$$\text{allocator}(p) = x, s.t., \quad x \in \lbrace \text{GlobalAllocator}, \text{OtherAllocator}, \text{stack} \rbrace || \text{sizeof}(T) = 0 $$ 
 
 **Proposition 1** (NOT SURE): NonDangling(p, T) implies NonNull(p).
 
