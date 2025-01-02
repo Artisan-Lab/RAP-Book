@@ -71,11 +71,14 @@ Example APIs: [NonNull::new_unchecked()](https://doc.rust-lang.org/std/ptr/struc
 To indicate whether the memory address pointed by the pointer is available to use or has been allocated by the system, either on heap or stack. There is a related safety requirements non-dangling, which means the pointer should point to a valid memory address that has not been deallocated in the heap or is valid in the stack.
 
 In practice, an API may require a pointer `p` that points to a type `T` to be non-dangling.
+
 **psp-5: NonDangling(p, T)**: 
-$$\begin{cases}
-      \text{allocator}(p) = x, s.t., x \in \lbrace GlobalAllocator, OtherAllocator, stack \rbrace,  & \text{\text{sizeof}(T) > 0} \\
-      true, & \text{\text{sizeof}(T) = 0}
-    \end{cases}
+$$\left.
+    \begin{array}{l}
+    \text{if sizeof}(T) > 0 &\text{allocator}(p) = x, s.t., x \in \lbrace GlobalAllocator, OtherAllocator, stack \rbrace \\
+    \text{if sizeof}(T) = 0 &true
+    \end{array}
+  \right\}
 $$
 
 Proposition (NOT SURE): NonDangling(p, T) implies NonNull(p).
