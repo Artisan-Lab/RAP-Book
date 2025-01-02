@@ -294,7 +294,7 @@ Example APIs: [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html), [pt
 ## Summary
 
 | ID  | Primitive SP  | Usage | Example API |
-|---|---|---|---|---|
+|---|---|---|---|
 | 1  | Aligned(p, T)  | precond  | [ptr::read()](https://doc.rust-lang.org/nightly/std/ptr/fn.read.html) | 
 | 2  | NonZST(T) | precond | [NonNull.offset_from](https://doc.rust-lang.org/core/ptr/struct.NonNull.html#method.offset_from)  | 
 | 3  | NoPadding(T)  | precond  | [raw_eq()](https://doc.rust-lang.org/std/intrinsics/fn.raw_eq.html) |
