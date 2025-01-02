@@ -79,6 +79,15 @@ $$
 \text{true}, & \text{if sizeof}(T) = 0
 \end{cases}
 $$
+$$  
+  \left.
+    \begin{array}{l}
+    \text{if $n$ is even:}&n/2\\
+    \text{if $n$ is odd:}&3n+1
+    \end{array}
+  \right\}
+  =f(n)
+$$
 
 Proposition (NOT SURE): NonDangling(p, T) implies NonNull(p).
 
