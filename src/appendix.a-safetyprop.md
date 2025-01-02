@@ -34,7 +34,7 @@ In practice, we generally require a pointer `p` of type `T∗` to be aligned. Th
 
 Example APIs: [ptr::read()](https://doc.rust-lang.org/nightly/std/ptr/fn.read.html), [ptr::write()](https://doc.rust-lang.org/std/ptr/fn.write.html), [Vec::from_raw_parts()](https://doc.rust-lang.org/beta/std/vec/struct.Vec.html#method.from_raw_parts)
 
-#### b) Size 
+#### Size 
 The size of a value is the offset in bytes between successive elements in an array with that item type including alignment padding. It is always a multiple of its alignment (including 0), i.e., $\text{sizeof}(T) \\% \text{alignment}(T)=0$. 
 
 A safety property may require the size of a type `T` to be not ZST. We can formulate the requirement as 
@@ -43,7 +43,7 @@ A safety property may require the size of a type `T` to be not ZST. We can formu
 
 Example API: [NonNull.offset_from](https://doc.rust-lang.org/core/ptr/struct.NonNull.html#method.offset_from), [pointer.sub_ptr](https://doc.rust-lang.org/beta/std/primitive.pointer.html#method.sub_ptr)
 
-#### c) Padding 
+#### Padding 
 Padding refers to the unused space inserted between successive elements in an array to ensure proper alignment. Padding is taken into account when calculating the size of each element. For example, the following data structure includes 1 byte of padding, resulting in a total size of 4 bytes.
 ```rust
 struct MyStruct { a: u16,  b: u8 } // alignment: 2; padding 1
@@ -60,14 +60,14 @@ Example API: intrinsic [raw_eq()](https://doc.rust-lang.org/std/intrinsics/fn.ra
 
 Referring to the [pointer validity](https://doc.rust-lang.org/std/ptr/index.html#safety) documentation, whether a pointer is valid depends on the context of its usage, and the criteria vary across different APIs. To better describe pointer validity and reduce ambiguity, we break down the concept into several primitive components.
 
-#### d) Address
+#### Address
 The memory address that the pointer refers to is critical. A safety property may require the pointer `p` to be non-null, as the behavior of a null pointer is undefined. This property can be formalized as:
 
 **psp-4: NonNull(p)**: $$p != null$$
 
 Example APIs: [NonNull::new_unchecked()](https://doc.rust-lang.org/std/ptr/struct.NonNull.html#method.new_unchecked), [Box::from_non_null()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_non_null)
 
-#### e) Allocation
+#### Allocation
 To determine whether the memory address referenced by a pointer is available for use or has been allocated by the system (either on the heap or the stack), we consider the related safety requirement: non-dangling. This means the pointer must refer to a valid memory address that has not been deallocated on the heap or remains valid on the stack.
 
 In practice, an API may enforce that a pointer `p` to a type `T` must satisfy the non-dangling property.
@@ -92,13 +92,13 @@ If the allocator `A` is unspecified, it typically defaults to the global allocat
 
 Example APIs: [Arc::from_raw()](https://doc.rust-lang.org/std/sync/struct.Arc.html#method.from_raw),[Box::from_raw()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_raw)
 
-#### f) Pointto
+#### Pointee
 
 A safety property may require that a pointer `p` refers to a value of a specific type `T`. This property can be formalized as:
 
-**psp-7: Pointto(p, T)**: $$\text{typeof}(*p) = T $$
+**psp-7: Pointee(p, T)**: $$\text{typeof}(*p) = T $$
 
-**Proposition 2** (NOT SURE): Pointto(p, T) implies NonDangling(p, T) and  NonNull(p).
+**Proposition 2** (NOT SURE): Pointee(p, T) implies NonDangling(p, T) and  NonNull(p).
 
 #### Derived Safety Properties
 There are two useful derived safety properties based on the previous components.
@@ -123,32 +123,37 @@ Example APIs: [ptr::copy_nonoverlapping()](https://doc.rust-lang.org/std/ptr/fn.
  
 ### III. Content
 
-#### g) Initialization
-A memory of type T pointed by a pointer is either initialized or not. This is a binary primitive property.
-
-$$\text{init}(*p)\in \lbrace true, false \rbrace $$
-
-Example APIs: [MaybeUninit.assume_init()](https://doc.rust-lang.org/std/mem/union.MaybeUninit.html#method.assume_init), [Box::assume_init()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.assume_init)
-
 #### h) Integer
-Interger arithmatic should not overflow the max or the main value.
-**Single Value**
-$$ u8::MIN \leq u8(x) \geq u8::MAX $$
+
+When converting a value `x` to an interger, the value should not be greater the max or less the min value that can be represented by the integer type `T`.
+
+**psp-10: ValueRange(x, T)** $$T::MIN \leq x \geq T::MAX $$
 
 Example API: [f32.to_int_unchecked()](https://doc.rust-lang.org/std/primitive.f32.html#method.to_int_unchecked)
 
-Not zero
+Some APIs may require the value `x` of an integer type should not be zero.
+**psp-10.1: ValueRange(x, !0)** $$x != 0 $$
 [NonZero::from_mut_unchecked()](https://doc.rust-lang.org/beta/std/num/struct.NonZero.html#tymethod.from_mut_unchecked)
-**Integer Arithmatic**
-$$ isize::MAX \leq isize(\text{binop} (x_1, x_2)) \geq isize::MIN $$
 
-$$ usize::MAX \leq usize(\text{binop} (x_1, x_2)) \geq usize::MIN $$
+The result of interger arithmatic of two values `x` and `y` of type `T` should not overflow the max or the main value.
+**psp-10.2: ValueRange(x, y, T, binop)** $$T:MAX \leq isize(\text{binop} (x, y)) \geq T::MIN $$
+
+Similarly, unary arithmatic operations have similar requirements.
+**psp-10.3: ValueRange(x, T, uop)** $$T:MAX \leq isize(\text{uop} (x)) \geq T::MIN $$
 
 Example APIs: [isize.add()](https://doc.rust-lang.org/std/primitive.isize.html#method.unchecked_add), [usize.add()](https://doc.rust-lang.org/std/primitive.usize.html#method.unchecked_add), [pointer.add(usize.add())](https://doc.rust-lang.org/std/primitive.pointer.html#method.add)
 
 #### i) String
 The content must be a valid string. There are two types of string in Rust, [String](https://doc.rust-lang.org/std/string/struct.String.htm) which requires valid utf-8 format, and [CStr](https://doc.rust-lang.org/std/ffi/struct.CStr.html) for interacting with foreign functions.
 Example APIs: [String::from_utf8_unchecked()](https://doc.rust-lang.org/std/string/struct.String.html#method.from_utf8_unchecked), [CStr::from_ptr()](https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.from_ptr)
+
+#### Initialization
+A memory of type T pointed by a pointer is either initialized or not. This is a binary primitive property.
+
+$$\text{init}(*p)\in \lbrace true, false \rbrace $$
+
+Example APIs: [MaybeUninit.assume_init()](https://doc.rust-lang.org/std/mem/union.MaybeUninit.html#method.assume_init), [Box::assume_init()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.assume_init)
+
 
 #### j) Unwrap
 
