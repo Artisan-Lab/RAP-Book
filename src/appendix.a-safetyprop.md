@@ -158,10 +158,9 @@ The safety properties of String generally requires the bytes contained in a vect
 
 Example APIs: [String::from_utf8_unchecked()](https://doc.rust-lang.org/std/string/struct.String.html#method.from_utf8_unchecked), [String::from_raw_parts()](https://doc.rust-lang.org/std/string/struct.String.html#method.from_raw_parts), [String.as_bytes_mut()](https://doc.rust-lang.org/std/string/struct.String.html#method.as_bytes_mut)(This API introduces hazard).
 
-
 The safety properties of CString generally requires the bytes of a u8 slice or pointed by a pointer `p` shoule contains a null terminator within isize::MAX from `p`.
 
-**psp-12: ValidCStr(p, len)** $$\exists offset, s.t., *(p + offset) = '\0' \&\& \text{ValidInt}(offset, isize) $$
+**psp-12: ValidCStr(p, len)** \\[\exists offset, s.t., *(p + offset) = '\0' \&\& \text{ValidInt}(offset, isize) \\]
 
 Example API: [CStr::from_bytes_with_nul_unchecked()](https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.from_bytes_with_nul_unchecked), [CStr::from_ptr()](https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.from_ptr)
 
@@ -179,7 +178,7 @@ Example APIs: [MaybeUninit.assume_init()](https://doc.rust-lang.org/std/mem/unio
 Such safety properties relate to the monadic types, including [Option](https://doc.rust-lang.org/std/option/enum.Option.html) and [Result](https://doc.rust-lang.org/std/result/enum.Result.html), and they require the value after unwarpping should be of a particular type.
 
 **psp-14: Unwrap(x, T)**
-$$\text{Unwrap}(x) = T, T \in \lbrace Ok, Err, Some, None \rbrace $$
+$$\text{unwrap}(x) = T, T \in \lbrace Ok, Err, Some, None \rbrace $$
 
 Example APIs: [Option::unwrap_unchecked()](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_unchecked), [Result::unwrap_unchecked()](https://doc.rust-lang.org/core/result/enum.Result.html#method.unwrap_unchecked), [Result::unwrap_err_unchecked()](https://doc.rust-lang.org/core/result/enum.Result.html#method.unwrap_err_unchecked)
 
@@ -190,7 +189,7 @@ This category relates to the core mechanism of Rust which aims to avoid shared m
 Let one value has two owners at the same program point is vulnerable to double free. Refer to the traidional vulnerbility of [mem::forget()](https://doc.rust-lang.org/std/mem/fn.forget.html) compared to [ManuallyDrop](https://doc.rust-lang.org/std/mem/struct.ManuallyDrop.html). The property generally relates to convert a raw pointer to an ownership, and it can be represented as:
 
 **psp-15: NotOwned(p)**
-$$\text{HasOwner}(*p) = false $$
+$$\text{hasowner}(*p) = false $$
 
 Example APIs: [Box::from_raw()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_raw), [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html), [ptr::read_volatile()](https://doc.rust-lang.org/std/ptr/fn.read_volatile.html)
 
