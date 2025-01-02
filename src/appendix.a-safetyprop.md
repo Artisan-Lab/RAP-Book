@@ -198,7 +198,7 @@ Example APIs: [Box::from_raw()](https://doc.rust-lang.org/std/boxed/struct.Box.h
 There are six types of pointers to a value x, depending on the mutabality and ownership.
 
 **psp-16: Alias(p)**
-$$\text{pointer}(x) = \bigcup p | p\in \lbrace owner, owner_{mut}, ref, ref_{mut}, ptr, ptr_{mut} \rbrace $$
+$$\text{pointer}(x) = \bigcup p_i, s.t., p_i\in \lbrace owner, owner_{mut}, ref, ref_{mut}, ptr, ptr_{mut} \rbrace $$
 
 The exclusive mutability principle of Rust requires that if a value has a mutable alias at one program point, it must not have other aliases at that program point. Otherwise, it may incur unsafe status. We need to track the particular unsafe status and avoid unsafe behaviors. For example, the follow status are vulnerable:
 
