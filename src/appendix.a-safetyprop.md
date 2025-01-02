@@ -20,8 +20,8 @@ While preconditions and postconditions are foundational to safety reasoning, the
 In practice, a safety property may correspond to a precondition, postcondition, or hazard. To address the ambiguity of certain high-level or ad hoc safety property descriptions, we propose breaking them down into primitive safety requirements. By collecting and analyzing commonly used safety descriptions, we aim to provide a clearer framework for understanding and documenting these properties. The following sections will elaborate on these details.
 
 ## Safety Properties
-### I. Layout-related Primitives
-Refer to the document of [type-layout](https://doc.rust-lang.org/reference/type-layout.html), we define three primitives: alignment, size, and padding.
+### I. Layout
+Refer to the document of [type-layout](https://doc.rust-lang.org/reference/type-layout.html), there are three components related to layout: alignment, size, and padding.
 
 #### Alignment
 Alignment is measured in bytes. It must be at least 1 and is always a power of 2. This can be expressed as $2^x, s.t. x\ge 0$. A memory address of type `T` is considered aligned if the address is a multiple of alignment(T). The alignment requirement can be formalized as:
@@ -58,24 +58,25 @@ Example API: intrinsic [raw_eq()](https://doc.rust-lang.org/std/intrinsics/fn.ra
 
 ### Pointer Validity
 
-Refering to the documents about [pointer validity](https://doc.rust-lang.org/std/ptr/index.html#safety), whether a pointer is valid depends on the context of pointer usage, and the criteria varies for different APIs. To better descript the pointer validity and avoid ambiguity, we breakdown the concept related pointer validity into several primitives. 
+Referring to the [pointer validity](https://doc.rust-lang.org/std/ptr/index.html#safety) documentation, whether a pointer is valid depends on the context of its usage, and the criteria vary across different APIs. To better describe pointer validity and reduce ambiguity, we break down the concept into several primitive components.
 
-#### d) Address (Primitive)
-The memory address that the pointer points to. A safety property may require the pointer address to be null, namely `non-null`, because the address of a null pointer is undefined. We can fomulate the property as 
+#### d) Address
+The memory address that the pointer refers to is critical. A safety property may require the pointer `p` to be non-null, as the behavior of a null pointer is undefined. This property can be formalized as:
 
 **psp-4: NonNull(p)**: $$p != null$$
 
 Example APIs: [NonNull::new_unchecked()](https://doc.rust-lang.org/std/ptr/struct.NonNull.html#method.new_unchecked), [Box::from_non_null()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_non_null)
 
-#### e) Allocation (Primitive)
-To indicate whether the memory address pointed by the pointer is available to use or has been allocated by the system, either on heap or stack. There is a related safety requirements non-dangling, which means the pointer should point to a valid memory address that has not been deallocated in the heap or is valid in the stack.
+#### e) Allocation
+To determine whether the memory address referenced by a pointer is available for use or has been allocated by the system (either on the heap or the stack), we consider the related safety requirement: non-dangling. This means the pointer must refer to a valid memory address that has not been deallocated on the heap or remains valid on the stack.
 
-In practice, an API may require a pointer `p` that points to a type `T` to be non-dangling.
+In practice, an API may enforce that a pointer `p` to a type `T` must satisfy the non-dangling property.
 
 **psp-5: NonDangling(p, T)**: 
-$$\text{allocator}(p) = x, s.t., \quad x \in \{ \text{GlobalAllocator}, \text{OtherAllocator}, \text{stack} \} || \text{sizeof}(T) = 0 $$
 
-Proposition (NOT SURE): NonDangling(p, T) implies NonNull(p).
+$$\text{allocator}(p) = x, s.t., \quad x \in \{ \text{GlobalAllocator}, \text{OtherAllocator}, \text{stack} \} || \text{sizeof}(T) = 0 $$ 
+
+**Proposition 1** (NOT SURE): NonDangling(p, T) implies NonNull(p).
 
 Example API: [ptr::offset()](https://doc.rust-lang.org/beta/std/primitive.pointer.html#method.offset), [Box::from_raw()](https://doc.rust-lang.org/beta/std/boxed/struct.Box.html#method.from_raw)
 
@@ -83,43 +84,44 @@ Besides, some properties may require the allocator to be consistent, i.e., the m
 
 **psp-6: AllocaConsistency(p, A)**: $$\text{allocator}(p) = A $$
 
-If the allocator `A` is omitted, it generally refers the global allocator.
+Example APIs: [Arc::from_raw_in()](https://doc.rust-lang.org/std/sync/struct.Arc.html#method.from_raw_in), [Box::from_raw_in()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_raw_in)
+
+If the allocator `A` is unspecified, it typically defaults to the global allocator.
 
 **psp-6.1: AllocaConsistency(p)**: $$\text{allocator}(p) = GlobalAllocator $$
 
-Example APIs: [Arc::from_raw()](https://doc.rust-lang.org/std/sync/struct.Arc.html#method.from_raw), [Arc::from_raw_in()](https://doc.rust-lang.org/std/sync/struct.Arc.html#method.from_raw_in), [Box::from_raw_in()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_raw_in)
+Example APIs: [Arc::from_raw()](https://doc.rust-lang.org/std/sync/struct.Arc.html#method.from_raw),[Box::from_raw()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_raw)
 
-#### f) Point-to (Primitive)
-A safety property may require the pointer point to a value of a particular type. We can fomulate the property as 
+#### f) Pointto
 
-$$ \text{typeof}(*p) = T $$
+A safety property may require that a pointer `p` refers to a value of a specific type `T`. This property can be formalized as:
 
-Point-to implies non-dangling and non-null(not sure, need to be confirmed).
+**psp-7: Pointto(p, T)**: $$ \text{typeof}(*p) = T $$
+
+**Proposition 2** (NOT SURE): Pointto(p, T) implies NonDangling(p, T) and  NonNull(p).
 
 #### Derived Safety Properties
-There are two useful derived safety properties based on the primitives.
+There are two useful derived safety properties based on the previous components.
 
-**Bounded Address (derived)**
+The first one is bounded access, which requires that the pointer access with respet to an offset stays within the bound. This ensures that dereferencing the pointer results in a value of the expected type T.
 
-$$ \text{typeof}(*(p + \text{sizeof}(T) * offset))  = T $$
+**psp-8: Bounded(p, T, offset)**: $$ \text{typeof}(*(p + \text{sizeof}(T) * offset))  = T $$
 
-Example API: [ptr::offset()](https://doc.rust-lang.org/std/primitive.pointer.html#method.offset-1)
+Example APIs: [ptr::offset()](https://doc.rust-lang.org/std/primitive.pointer.html#method.offset), [ptr::copy()](https://doc.rust-lang.org/std/ptr/fn.copy.html) 
 
-**Overlap (derived)**
+A safety property may require the two pointers do not overlap with respect to `T`: 
 
-A safety property may require the two pointers do not overlap with respect to T: 
+**psp-9: NonOverlap($p_{dst}$, $p_{src}$, T)**: $$ |p_{dst} - p_{src}| > \text{sizeof}(T)$$
 
-$$ |p_{dst} - p_{src}| > \text{sizeof}(T)$$
+Example APIs: [ptr::copy_from()](https://doc.rust-lang.org/std/ptr/fn.copy.html), [ptr.copy()](https://doc.rust-lang.org/std/ptr/fn.copy_from.html) 
 
-Example API: [ptr::copy()](https://doc.rust-lang.org/std/ptr/fn.copy.html) 
+It may also require the two pointers do not overlap with respect to $T\times count$: 
 
-It may also require the two pointers do not overlap with respect to $T\times n$ : 
+**psp-9.1: NonOverlap($p_{dst}$, $p_{src}$, T, count)**: $$ |p_{dst} - p_{src}| > \text{sizeof}(T) * count $$
 
-$$ |p_{dst} - p_{src}| > \text{sizeof}(T) * n $$
-
-Example API: [ptr::copy_nonoverlapping()](https://doc.rust-lang.org/std/ptr/fn.copy_nonoverlapping.html)
+Example APIs: [ptr::copy_nonoverlapping()](https://doc.rust-lang.org/std/ptr/fn.copy_nonoverlapping.html), [ptr.copy_from_nonoverlapping](https://doc.rust-lang.org/core/primitive.pointer.html#method.copy_from_nonoverlapping)
  
-### Content-related Primitives
+### Content
 
 #### g) Initialization
 A memory of type T pointed by a pointer is either initialized or not. This is a binary primitive property.
