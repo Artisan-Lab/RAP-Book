@@ -73,21 +73,12 @@ To indicate whether the memory address pointed by the pointer is available to us
 In practice, an API may require a pointer `p` that points to a type `T` to be non-dangling.
 
 **psp-5: NonDangling(p, T)**: 
-$$
+\[
 \begin{cases} 
 \text{allocator}(p) = x, & \text{if sizeof}(T) > 0 \quad x \in \{ \text{GlobalAllocator}, \text{OtherAllocator}, \text{stack} \} \\
 \text{true}, & \text{if sizeof}(T) = 0
 \end{cases}
-$$
-$$  
-  \left.
-    \begin{array}{l}
-    \text{if $n$ is even:}&n/2\\
-    \text{if $n$ is odd:}&3n+1
-    \end{array}
-  \right\}
-  =f(n)
-$$
+\]
 
 Proposition (NOT SURE): NonDangling(p, T) implies NonNull(p).
 
