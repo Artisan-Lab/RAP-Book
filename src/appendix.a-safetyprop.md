@@ -19,7 +19,36 @@ While preconditions and postconditions are foundational to safety reasoning, the
 
 In practice, a safety property may correspond to a precondition, postcondition, or hazard. To address the ambiguity of certain high-level or ad hoc safety property descriptions, we propose breaking them down into primitive safety requirements. By collecting and analyzing commonly used safety descriptions, we aim to provide a clearer framework for understanding and documenting these properties. The following sections will elaborate on these details.
 
-## Safety Properties
+## Summary of Primitive SPs
+
+| ID  | Primitive SP | Usage | Example API |
+|---|---|---|---|
+| 1  | Aligned(p, T) | precond  | [ptr::read()](https://doc.rust-lang.org/nightly/std/ptr/fn.read.html) | 
+| 2  | NonZST(T) | precond | [NonNull.offset_from](https://doc.rust-lang.org/core/ptr/struct.NonNull.html#method.offset_from)  | 
+| 3  | NoPadding(T)  | precond  | [raw_eq()](https://doc.rust-lang.org/std/intrinsics/fn.raw_eq.html) |
+| 4  | NonNull(p) | precond  | [NonNull::new_unchecked()](https://doc.rust-lang.org/std/ptr/struct.NonNull.html#method.new_unchecked) |
+| 5  | NonDangling(p, T) | precond| [ptr::offset()](https://doc.rust-lang.org/beta/std/primitive.pointer.html#method.offset) |
+| 6  | AllocatorConsistency(p, A) | precond | [Box::from_raw_in()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_raw_in) |
+| 7  | Pointee(p, T)  | precond  |   |
+| 8  | Bounded(p, T, offset)  | precond | [ptr::offset()](https://doc.rust-lang.org/std/primitive.pointer.html#method.offset)  |
+| 9  | NonOverlap(\\(p_{dst}\\), \\(p_{src}\\), T, count) | precond | [ptr::copy_nonoverlapping()](https://doc.rust-lang.org/std/ptr/fn.copy_nonoverlapping.html)  |
+| 10  | ValidInt(x, T)  | precond | [f32.to_int_unchecked()](https://doc.rust-lang.org/std/primitive.f32.html#method.to_int_unchecked)  |
+| 11  | ValidString(p, len) | precond | [String::from_utf8_unchecked()](https://doc.rust-lang.org/std/string/struct.String.html#method.from_utf8_unchecked) |
+| 12  | ValidCStr(p, len) |  precond|  [CStr::from_bytes_with_nul_unchecked()](https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.from_bytes_with_nul_unchecked)  |
+| 13  | Init(p, T)  | precond | [Box::assume_init()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.assume_init)  |
+| 14  | Unwrap(x, T)  | precond | [Option::unwrap_unchecked()](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_unchecked)  |
+| 15  | NotOwned(p)  | precond | [Box::from_raw()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_raw)  |
+| 16  | Alias(p)  | hazard | [pointer.as_mut()](https://doc.rust-lang.org/std/primitive.pointer.html#method.as_mut) |
+| 17  | Lifetime(p, 'a)  | precond | [AtomicPtr::from_ptr()](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicPtr.html#method.from_ptr)  |
+| 18  | Trait(T)  | precond | [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html)  |
+| 19  | ThreadSafe(T, Send)  | precond |   |
+| 20  | Pinned(p)  | hazard | [Pin::new_unchecked()](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.new_unchecked)  |
+| 21  | Opened(fd) | precond | [trait.FromRawFd::from_raw_fd()](https://doc.rust-lang.org/std/os/fd/trait.FromRawFd.html#tymethod.from_raw_fd)  |
+| 22  | NonVolatile(p) | precond | [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html) |
+
+
+## Safety Property Analysis
+
 ### I. Layout
 Refer to the document of [type-layout](https://doc.rust-lang.org/reference/type-layout.html), there are three components related to layout: alignment, size, and padding.
 
@@ -290,30 +319,3 @@ There are specific APIs for volatile memory access in std-lib, like [ptr::read_v
 $$volatile(*p) = false$$
 
 Example APIs: [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html), [ptr::write()](https://doc.rust-lang.org/std/ptr/fn.write.html)
-
-## Summary
-
-| ID  | Primitive SP  | Usage | Example API |
-|---|---|---|---|
-| 1  | Aligned(p, T)  | precond  | [ptr::read()](https://doc.rust-lang.org/nightly/std/ptr/fn.read.html) | 
-| 2  | NonZST(T) | precond | [NonNull.offset_from](https://doc.rust-lang.org/core/ptr/struct.NonNull.html#method.offset_from)  | 
-| 3  | NoPadding(T)  | precond  | [raw_eq()](https://doc.rust-lang.org/std/intrinsics/fn.raw_eq.html) |
-| 4  | NonNull(p) | precond  | [NonNull::new_unchecked()](https://doc.rust-lang.org/std/ptr/struct.NonNull.html#method.new_unchecked) |
-| 5  | NonDangling(p, T) | precond| [ptr::offset()](https://doc.rust-lang.org/beta/std/primitive.pointer.html#method.offset) |
-| 6  | AllocatorConsistency(p, A) | precond | [Box::from_raw_in()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_raw_in) |
-| 7  | Pointee(p, T)  | precond  |   |
-| 8  | Bounded(p, T, offset)  | precond | [ptr::offset()](https://doc.rust-lang.org/std/primitive.pointer.html#method.offset)  |
-| 9  | NonOverlap(\\(p_{dst}\\), \\(p_{src}\\), T, count) | precond | [ptr::copy_nonoverlapping()](https://doc.rust-lang.org/std/ptr/fn.copy_nonoverlapping.html)  |
-| 10  | ValidInt(x, T)  | precond | [f32.to_int_unchecked()](https://doc.rust-lang.org/std/primitive.f32.html#method.to_int_unchecked)  |
-| 11  | ValidString(p, len) | precond | [String::from_utf8_unchecked()](https://doc.rust-lang.org/std/string/struct.String.html#method.from_utf8_unchecked) |
-| 12  | ValidCStr(p, len) |  precond|  [CStr::from_bytes_with_nul_unchecked()](https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.from_bytes_with_nul_unchecked)  |
-| 13  | Init(p, T)  | precond | [Box::assume_init()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.assume_init)  |
-| 14  | Unwrap(x, T)  | precond | [Option::unwrap_unchecked()](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_unchecked)  |
-| 15  | NotOwned(p)  | precond | [Box::from_raw()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_raw)  |
-| 16  | Alias(p)  | hazard | [pointer.as_mut()](https://doc.rust-lang.org/std/primitive.pointer.html#method.as_mut) |
-| 17  | Lifetime(p, 'a)  | precond | [AtomicPtr::from_ptr()](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicPtr.html#method.from_ptr)  |
-| 18  | Trait(T)  | precond | [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html)  |
-| 19  | ThreadSafe(T, Send)  | precond |   |
-| 20  | Pinned(p)  | hazard | [Pin::new_unchecked()](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.new_unchecked)  |
-| 21  | Opened(fd) | precond | [trait.FromRawFd::from_raw_fd()](https://doc.rust-lang.org/std/os/fd/trait.FromRawFd.html#tymethod.from_raw_fd)  |
-| 22  | NonVolatile(p) | precond | [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html) |
