@@ -189,9 +189,18 @@ This category relates to the core mechanism of Rust which aims to avoid shared m
 Let one value has two owners at the same program point is vulnerable to double free. Refer to the traidional vulnerbility of [mem::forget()](https://doc.rust-lang.org/std/mem/fn.forget.html) compared to [ManuallyDrop](https://doc.rust-lang.org/std/mem/struct.ManuallyDrop.html). The property generally relates to convert a raw pointer to an ownership, and it can be represented as:
 
 **psp-15: NotOwned(p)**
+
 $$\text{hasowner}(*p) = false $$
 
-Example APIs: [Box::from_raw()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_raw), [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html), [ptr::read_volatile()](https://doc.rust-lang.org/std/ptr/fn.read_volatile.html)
+Example APIs: [Box::from_raw()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_raw), [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html), [ptr::read_volatile()](https://doc.rust-lang.org/std/ptr/fn.read_volatile.html),
+
+**psp-15.1: Owned(p)**
+
+$$\text{hasowner}(*p) = true $$
+
+Example APIs: [trait.FromRawFd::from_raw_fd()](https://doc.rust-lang.org/std/os/fd/trait.FromRawFd.html#tymethod.from_raw_fd), [UdpSocket::from_raw_socket()](https://doc.rust-lang.org/std/net/struct.UdpSocket.html#method.from_raw_socket)
+
+(TO FIX: there should be similar issues for other RAII resources, we may not need this because FFI memories cannot require owned.)
 
 #### m) Alias
 There are six types of pointers to a value x, depending on the mutabality and ownership.
@@ -215,53 +224,66 @@ Example APIs: [pointer.as_mut()](https://doc.rust-lang.org/std/primitive.pointer
 
 The property generally requires the lifetime of a raw pointer `p` must be valid for both reads and writes for the whole lifetime 'a.
 
-**psp-16: Lifetime(p, 'a)**
+**psp-17: Lifetime(p, 'a)**
 $$\text{lifetime}(*p)>\'a$$
 
 Example APIs: [AtomicPtr::from_ptr()](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicPtr.html#method.from_ptr), [AtomicBool::from_ptr()](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicBool.html#method.from_ptr), [CStr::from_ptr()](https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.from_ptr)
 
 ### V. More
 
-#### n) Trait
+#### Trait
 If the parameter has implemented some trait, it is guaranteed to be safe. 
-
+**psp-18: Trait(T)**
 $$\text{trait}(T) = \lbrace Copy, Unpin, Send, Sync \rbrace $$
 
-For example, the [Unpin](https://doc.rust-lang.org/std/marker/trait.Unpin.html) marker trait for implementing [Pin](https://doc.rust-lang.org/std/pin/struct.Pin.html) can ensure safety. However, this is not required. 
+Example APIs: [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html), [ptr::read_volatile()](https://doc.rust-lang.org/std/ptr/fn.read_volatile.html), [Pin::new_unchecked()](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.new_unchecked)
 
-Example API: [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html), [ptr::read_volatile()](https://doc.rust-lang.org/std/ptr/fn.read_volatile.html), [Pin::new_unchecked()](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.new_unchecked)
+In most cases, satisfying the trait requirements can ensure safety, but is not required, leading to a harzard status.
 
-#### o) Atomicity (Thread-Safe)
+#### Thread-Safe (Atomicity)
 Refer to the [Rustnomicon](https://doc.rust-lang.org/nomicon/send-and-sync.html), it generally relates to the implementation of the Send/Sync attribute that requires update operations of a critical memory to be exclusive. 
+
+**psp-19: ThreadSafe(T, Send)**
 
 For Send, it requires: 
 
 $$\forall f\in St, \texttt{RefCont}(f) = false$$
 
+(TO FIX: This should be change to a recursive form.)
+
+**psp-19.1: ThreadSafe(T, Sync)**
+
 For Sync, it requires: 
 
 $$\forall f\in St, \texttt{InterirorMutability}(f) = false$$
 
+(TO FIX: This should be change to a recursive form.)
+
 Example APIs: Auto trait [Send](https://doc.rust-lang.org/std/marker/trait.Send.html), [Sync](https://doc.rust-lang.org/std/marker/trait.Sync.html)
 
-#### p) Pin
+#### Pin
 Implementing Pin for !Unpin is also valid in Rust, developers should not move the Pin object pointed by p after created.
+
+**psp-20: Pinned(p)**
 
 $$Pinned(*p) = true$$
 
 Example APIs: [Pin::new_unchecked()](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.new_unchecked),[Pin.into_inner_unchecked()](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.into_inner_unchecked), [Pin.map_unchecked()](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.map_unchecked), [Pin.get_unchecked_mut()](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.get_unchecked_mut), [Pin.map_unchecked_mut](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.map_unchecked_mut)
 
-#### q) I/O
+#### File Read/Write
 
-$$\text{owned}(fd) = true$$ (there should be similar issues for other RAII resources, we may not need this because FFI memories cannot require owned.)
+The file discripter `fd` must be opened.
+**psp-21: Opened(fd)**
 
 $$\text{opened}(fd) = true$$
 
 Example APIs: [trait.FromRawFd::from_raw_fd()](https://doc.rust-lang.org/std/os/fd/trait.FromRawFd.html#tymethod.from_raw_fd), [UdpSocket::from_raw_socket()](https://doc.rust-lang.org/std/net/struct.UdpSocket.html#method.from_raw_socket)
 
-#### r) volatile
+#### Volatility
 
 There are specific APIs for volatile memory access in std-lib, like [ptr::read_volatile](https://doc.rust-lang.org/std/ptr/fn.read_volatile.html) and [ptr::write_volatile](https://doc.rust-lang.org/std/ptr/fn.write_volatile.html). Other memory operations should require non-volatile by default.
+
+**psp-22: NonVolatile(p)**
 
 $$volatile(*p) = false$$
 
