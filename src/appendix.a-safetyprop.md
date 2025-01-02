@@ -160,7 +160,7 @@ Example API: [String::from_utf8_unchecked()](https://doc.rust-lang.org/std/strin
 
 The safety properties of CString generally requires the bytes of a u8 slice or pointed by a pointer `p` shoule contains a null terminator within isize::MAX from `p`.
 
-**psp-12: ValidCStr(p, len)** $$\exist offset, s.t., *(p + offset) = '\0' \&\& \text{ValidInt}(offset, isize) $$
+**psp-12: ValidCStr(p, len)** $$\exists offset, s.t., *(p + offset) = '\0' \&\& \text{ValidInt}(offset, isize) $$
 
 Example API: [CStr::from_bytes_with_nul_unchecked()](https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.from_bytes_with_nul_unchecked), [CStr::from_ptr()](https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.from_ptr)
 
