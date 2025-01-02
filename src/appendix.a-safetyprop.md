@@ -30,7 +30,7 @@ $$ \text{addressof}(\text{instance}(T)) \\% \text{alignment}(T) = 0 $$
 
 In practice, we generally require a pointer `p` of type `T∗` to be aligned. This property can be formalized as:
 
-**psp-1: Aligned(p, T)**:  $$p \\% \text{alignment}(T) = 0$$
+**psp-1: Aligned(p, T)**:  <span style="color:red"> $$p \\% \text{alignment}(T) = 0$$ </span>
 
 Example APIs: [ptr::read()](https://doc.rust-lang.org/nightly/std/ptr/fn.read.html), [ptr::write()](https://doc.rust-lang.org/std/ptr/fn.write.html), [Vec::from_raw_parts()](https://doc.rust-lang.org/beta/std/vec/struct.Vec.html#method.from_raw_parts)
 
@@ -233,6 +233,7 @@ Example APIs: [AtomicPtr::from_ptr()](https://doc.rust-lang.org/std/sync/atomic/
 
 #### Trait
 If the parameter has implemented some trait, it is guaranteed to be safe. 
+
 **psp-18: Trait(T)**
 $$\text{trait}(T) = \lbrace Copy, Unpin, Send, Sync \rbrace $$
 
@@ -273,6 +274,7 @@ Example APIs: [Pin::new_unchecked()](https://doc.rust-lang.org/std/pin/struct.Pi
 #### File Read/Write
 
 The file discripter `fd` must be opened.
+
 **psp-21: Opened(fd)**
 
 $$\text{opened}(fd) = true$$
