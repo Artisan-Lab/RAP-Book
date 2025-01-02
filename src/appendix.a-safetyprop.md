@@ -21,7 +21,7 @@ Refer to the document of [type-layout](https://doc.rust-lang.org/reference/type-
 #### a) Alignment
 Alignment is measured in bytes. It must be at least 1, and is always a power of 2. It can be represented as $2^x, s.t. x\ge 0$. We say the memory address of a Type T is aligned if the address is a multiple of alignment(T). We can formulate an alignment requirement as:
 
-$$\text{addressof}(\text{instance}(T)) \\% \text{alignment}(T) = 0$$
+\\[ \text{addressof}(\text{instance}(T)) \\% \text{alignment}(T) = \\]
 
 If requiring a pointer $p$ of type T* to be aligned, the property can be formularized as:
 
