@@ -56,7 +56,7 @@ A safety property may require the type `T` has no padding. We can formulate the 
 
 Example API: intrinsic [raw_eq()](https://doc.rust-lang.org/std/intrinsics/fn.raw_eq.html)
 
-### Pointer Validity
+### II. Pointer Validity
 
 Referring to the [pointer validity](https://doc.rust-lang.org/std/ptr/index.html#safety) documentation, whether a pointer is valid depends on the context of its usage, and the criteria vary across different APIs. To better describe pointer validity and reduce ambiguity, we break down the concept into several primitive components.
 
@@ -121,7 +121,7 @@ It may also require the two pointers do not overlap with respect to $T\times cou
 
 Example APIs: [ptr::copy_nonoverlapping()](https://doc.rust-lang.org/std/ptr/fn.copy_nonoverlapping.html), [ptr.copy_from_nonoverlapping](https://doc.rust-lang.org/core/primitive.pointer.html#method.copy_from_nonoverlapping)
  
-### Content
+### III. Content
 
 #### g) Initialization
 A memory of type T pointed by a pointer is either initialized or not. This is a binary primitive property.
@@ -156,7 +156,7 @@ $$\text{enum}(T)\in \lbrace Ok, Err, Some, None \rbrace $$
 
 Example APIs: [Option::unwrap_unchecked()](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_unchecked), [Result::unwrap_unchecked()](https://doc.rust-lang.org/core/result/enum.Result.html#method.unwrap_unchecked), [Result::unwrap_err_unchecked()](https://doc.rust-lang.org/core/result/enum.Result.html#method.unwrap_err_unchecked)
 
-### Alias-related Primitives
+### IV. Aliases
 This category relates to the core mechanism of Rust which aims to avoid shared mutable aliases and achieve automated memory deallocation. 
 
 #### k) Onwership
@@ -191,7 +191,7 @@ $$\text{lifetime}(*p)>\'a$$
 
 Example APIs: [AtomicPtr::from_ptr()](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicPtr.html#method.from_ptr), [AtomicBool::from_ptr()](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicBool.html#method.from_ptr), [CStr::from_ptr()](https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.from_ptr)
 
-### Advanced Primitive SPs
+### V. More
 
 #### n) Trait
 If the parameter has implemented some trait, it is guaranteed to be safe. 
