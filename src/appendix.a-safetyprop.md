@@ -23,60 +23,72 @@ In practice, a safety property may correspond to a precondition, postcondition, 
 ### I. Layout-related Primitives
 Refer to the document of [type-layout](https://doc.rust-lang.org/reference/type-layout.html), we define three primitives: alignment, size, and padding.
 
-#### a) Alignment
-Alignment is measured in bytes. It must be at least 1 and is always a power of 2. This can be expressed as $2^x, s.t. x\ge 0$. A memory address of type ``T`` is considered aligned if the address is a multiple of alignment(T). The alignment requirement can be formalized as:
+#### Alignment
+Alignment is measured in bytes. It must be at least 1 and is always a power of 2. This can be expressed as $2^x, s.t. x\ge 0$. A memory address of type `T` is considered aligned if the address is a multiple of alignment(T). The alignment requirement can be formalized as:
 
 $$ \text{addressof}(\text{instance}(T)) \\% \text{alignment}(T) = 0 $$
 
 In practice, we generally require a pointer `p` of type `T∗` to be aligned. This property can be formalized as:
 
-$$p \\% \text{alignment}(T) = 0$$
+**psp-1: Aligned(p, T)**:  $$p \\% \text{alignment}(T) = 0$$
 
-Example APIs: [ptr::read()](https://doc.rust-lang.org/nightly/std/ptr/fn.read.html), [ptr::write()](https://doc.rust-lang.org/std/ptr/fn.write.html)
+Example APIs: [ptr::read()](https://doc.rust-lang.org/nightly/std/ptr/fn.read.html), [ptr::write()](https://doc.rust-lang.org/std/ptr/fn.write.html), [Vec::from_raw_parts()](https://doc.rust-lang.org/beta/std/vec/struct.Vec.html#method.from_raw_parts)
 
 #### b) Size 
 The size of a value is the offset in bytes between successive elements in an array with that item type including alignment padding. It is always a multiple of its alignment (including 0), i.e., $\text{sizeof}(T) \\% \text{alignment}(T)=0$. 
 
-A safety property may require the size to be not ZST. We can formulate the requirement as 
+A safety property may require the size of a type `T` to be not ZST. We can formulate the requirement as 
 
-$$\text{sizeof}(T) > 0$$
+**psp-2: NonZST(T)**: $$\text{sizeof}(T) > 0$$
 
-Example API: [NonNull.offset_from](https://doc.rust-lang.org/core/ptr/struct.NonNull.html#method.offset_from)
+Example API: [NonNull.offset_from](https://doc.rust-lang.org/core/ptr/struct.NonNull.html#method.offset_from), [pointer.sub_ptr](https://doc.rust-lang.org/beta/std/primitive.pointer.html#method.sub_ptr)
 
 #### c) Padding 
-Padding is the unused space required between successive elements in an array, and it will be considered when calculating the size of the element. For example, the following data structure has 1 byte padding, and its size is 4.
+Padding refers to the unused space inserted between successive elements in an array to ensure proper alignment. Padding is taken into account when calculating the size of each element. For example, the following data structure includes 1 byte of padding, resulting in a total size of 4 bytes.
 ```rust
 struct MyStruct { a: u16,  b: u8 } // alignment: 2; padding 1
 mem::size_of::<MyStruct>(); // size: 4
 ```
 
-A safety property may require the type T has no padding. We can formulate the requirement as 
+A safety property may require the type `T` has no padding. We can formulate the requirement as 
 
-$$\text{padding}(T)=0$$
+**psp-3: Padding(T)**: $$\text{padding}(T)=0$$
 
 Example API: intrinsic [raw_eq()](https://doc.rust-lang.org/std/intrinsics/fn.raw_eq.html)
 
-### II. Pointer Validity
+### Pointer Validity
 
 Refering to the documents about [pointer validity](https://doc.rust-lang.org/std/ptr/index.html#safety), whether a pointer is valid depends on the context of pointer usage, and the criteria varies for different APIs. To better descript the pointer validity and avoid ambiguity, we breakdown the concept related pointer validity into several primitives. 
 
 #### d) Address (Primitive)
-The memory address that the pointer points to. A safety property may require the pointer address to be null, namely ``non-null``, because the address of a null pointer is undefined. We can fomulate the property as 
+The memory address that the pointer points to. A safety property may require the pointer address to be null, namely `non-null`, because the address of a null pointer is undefined. We can fomulate the property as 
 
-$$ p != null $$
+**psp-4: NonNull(p)**: $$ p != null $$
 
 Example APIs: [NonNull::new_unchecked()](https://doc.rust-lang.org/std/ptr/struct.NonNull.html#method.new_unchecked), [Box::from_non_null()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_non_null)
 
 #### e) Allocation (Primitive)
-To indicate whether the memory address pointed by the pointer is available to use or has been allocated by the system, either on heap or stack. There is a related safety requirements non-dangling, which means the pointer should point to a valid memory address that has not been deallocated in the heap or is valid in the stack. We can fomulate the requirement as 
+To indicate whether the memory address pointed by the pointer is available to use or has been allocated by the system, either on heap or stack. There is a related safety requirements non-dangling, which means the pointer should point to a valid memory address that has not been deallocated in the heap or is valid in the stack.
 
-$$ \text{alloca}(p) \in \lbrace GlobalAllocator, OtherAllocator, stack \rbrace $$
+In practice, an API may require a pointer `p` that points to a type `T` to be non-dangling.
+**psp-5: NonDangling(p, T)**: 
+    \begin{cases}
+      \text{allocator}(p) = x, s.t., x \in \lbrace GlobalAllocator, OtherAllocator, stack \rbrace,  & \text{\text{sizeof}(T) > 0} \\
+      true, & \text{\text{sizeof}(T) = 0}
+    \end{cases}
+$$
 
-Example API: [ptr::offset()](https://doc.rust-lang.org/std/primitive.pointer.html#method.offset-1)
+Proposition (NOT SURE): NonDangling(p, T) implies NonNull(p).
 
-Besides, some properties may require the allocator to be consistent, i.e., the memory address pointed by the pointer p should be allocated by a specific allocator, like the GlobalAllocator.
+Example API: [ptr::offset()](https://doc.rust-lang.org/beta/std/primitive.pointer.html#method.offset), [Box::from_raw()](https://doc.rust-lang.org/beta/std/boxed/struct.Box.html#method.from_raw)
 
-$$ \text{alloca}(p) = GlobalAllocator $$
+Besides, some properties may require the allocator to be consistent, i.e., the memory address pointed by the pointer `p` should be allocated by a specific allocator `A`.
+
+**psp-6: AllocaConsistency(p, A)**: $$ \text{allocator}(p) = A $$
+
+If the allocator `A` is omitted, it generally refers the global allocator.
+
+**psp-6.1: AllocaConsistency(p)**: $$ \text{allocator}(p) = GlobalAllocator $$
 
 Example APIs: [Arc::from_raw()](https://doc.rust-lang.org/std/sync/struct.Arc.html#method.from_raw), [Arc::from_raw_in()](https://doc.rust-lang.org/std/sync/struct.Arc.html#method.from_raw_in), [Box::from_raw_in()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_raw_in)
 
@@ -126,6 +138,8 @@ $$ u8::MIN \leq u8(x) \geq u8::MAX $$
 
 Example API: [f32.to_int_unchecked()](https://doc.rust-lang.org/std/primitive.f32.html#method.to_int_unchecked)
 
+Not zero
+[NonZero::from_mut_unchecked()](https://doc.rust-lang.org/beta/std/num/struct.NonZero.html#tymethod.from_mut_unchecked)
 **Integer Arithmatic**
 $$ isize::MAX \leq isize(\text{binop} (x_1, x_2)) \geq isize::MIN $$
 
