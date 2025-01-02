@@ -111,7 +111,7 @@ Example APIs: [ptr::offset()](https://doc.rust-lang.org/std/primitive.pointer.ht
 
 A safety property may require the two pointers do not overlap with respect to `T`: 
 
-**psp-9: NonOverlap($p_{dst}$, $p_{src}$, T)**: $$ |p_{dst} - p_{src}| > \text{sizeof}(T)$$
+**psp-9: NonOverlap**($p_{dst}$, $p_{src}$, T): $$ |p_{dst} - p_{src}| > \text{sizeof}(T)$$
 
 Example APIs: [ptr::copy_from()](https://doc.rust-lang.org/std/ptr/fn.copy.html), [ptr.copy()](https://doc.rust-lang.org/std/ptr/fn.copy_from.html) 
 
