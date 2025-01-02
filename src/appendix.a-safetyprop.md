@@ -24,7 +24,7 @@ In practice, a safety property may correspond to a precondition, postcondition, 
 Refer to the document of [type-layout](https://doc.rust-lang.org/reference/type-layout.html), there are three components related to layout: alignment, size, and padding.
 
 #### Alignment
-Alignment is measured in bytes. It must be at least 1 and is always a power of 2. This can be expressed as $2^x, s.t. x\ge 0$. A memory address of type `T` is considered aligned if the address is a multiple of alignment(T). The alignment requirement can be formalized as:
+Alignment is measured in bytes. It must be at least 1 and is always a power of 2. This can be expressed as $$2^x, s.t. x\ge 0$$. A memory address of type `T` is considered aligned if the address is a multiple of alignment(T). The alignment requirement can be formalized as:
 
 $$ \text{addressof}(\text{instance}(T)) \\% \text{alignment}(T) = 0 $$
 
@@ -111,13 +111,13 @@ Example APIs: [ptr::offset()](https://doc.rust-lang.org/std/primitive.pointer.ht
 
 A safety property may require the two pointers do not overlap with respect to `T`: 
 
-**psp-9: NonOverlap**($p_{dst}$, $p_{src}$, T): $$ |p_{dst} - p_{src}| > \text{sizeof}(T)$$
+**psp-9: NonOverlap($$p_{dst}$$, $$p_{src}$$, T)**: $$ |p_{dst} - p_{src}| > \text{sizeof}(T)$$
 
 Example APIs: [ptr::copy_from()](https://doc.rust-lang.org/std/ptr/fn.copy.html), [ptr.copy()](https://doc.rust-lang.org/std/ptr/fn.copy_from.html) 
 
 It may also require the two pointers do not overlap with respect to $T\times count$: 
 
-**psp-9.1: NonOverlap**($p_{dst}$, $p_{src}$, T, count): $$ |p_{dst} - p_{src}| > \text{sizeof}(T) * count $$
+**psp-9.1: NonOverlap($$p_{dst}$$, $$p_{src}$$, T, count)**: $$ |p_{dst} - p_{src}| > \text{sizeof}(T) * count $$
 
 Example APIs: [ptr::copy_nonoverlapping()](https://doc.rust-lang.org/std/ptr/fn.copy_nonoverlapping.html), [ptr.copy_from_nonoverlapping](https://doc.rust-lang.org/core/primitive.pointer.html#method.copy_from_nonoverlapping)
  
