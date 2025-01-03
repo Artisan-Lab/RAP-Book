@@ -202,7 +202,7 @@ The safety properties of String generally requires the bytes contained in a vect
 
 **psp-16: ValidString(x)** $$x\in utf-8$$
 
-Example APIs: [String::from_utf8_unchecked()](https://doc.rust-lang.org/std/string/struct.String.html#method.from_utf8_unchecked), [String.as_bytes_mut()](https://doc.rust-lang.org/std/string/struct.String.html#method.as_bytes_mut)(This API introduces hazard).
+Example APIs: [String::from_utf8_unchecked()](https://doc.rust-lang.org/std/string/struct.String.html#method.from_utf8_unchecked), [String.as_bytes_mut()](https://doc.rust-lang.org/std/string/struct.String.html#method.as_bytes_mut).
 
 **psp-17: ValidString(p, len)** $$\text{content}(p, len) \in utf-8$$
 
