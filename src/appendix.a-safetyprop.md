@@ -15,7 +15,7 @@ In contract design, safety properties can be categorized into two types:
 
 While preconditions and postconditions are foundational to safety reasoning, they may not always be sufficient in Rust. For instance, an API may include optional preconditions. If these conditions are satisfied, the Rust compiler can guarantee that the postconditions will hold. However, meeting these optional requirements is not mandatory. For example, in the case of [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html), specifying that the parameter implements the Copy trait can help avoid undefined behavior related to exclusive mutability. By meeting this optional precondition, developers can ensure safer use of the API while still having the flexibility to omit it when not needed.
 
-**Option (new)**: Optional preconditions for an unsafe API. If satisfying such contions, it can guarantee that the post condition can be satisfied.
+**Option (new)**: Optional preconditions for an unsafe API. If satisfying such conditions, it can guarantee that the post condition can be satisfied.
 
 Besides optional preconditions, we also need to document potential hazards of Unsafe APIs. For instance, certain scenarios such as implementing a doubly linked list or the internals of [Rc](https://doc.rust-lang.org/std/rc/struct.Rc.html) and [RefCell](https://doc.rust-lang.org/std/cell/struct.RefCell.html) require temporarily violating postconditions. In such cases, it is crucial to document how the program state deviates from Rust's safety principles and whether these vulnerabilities are eventually resolved.
 
@@ -120,7 +120,7 @@ In practice, an API may enforce that a pointer `p` to a type `T` must satisfy th
 
 **psp-5: NonDangling(p, T)**: 
 
-$$\text{allocator}(p) = x, \quad x \in \lbrace GlobalAllocator, OtherAllocator, stack \rbrace || \text{sizeof}(T) = 0 $$ 
+$$\text{allocator}(p) = x, \quad x \in \lbrace \text{GlobalAllocator}, \text{OtherAllocator}, \text{stack} \rbrace || \text{sizeof}(T) = 0 $$ 
 
 **Proposition 1** (NOT SURE): NonDangling(p, T) implies NonNull(p).
 
@@ -228,7 +228,7 @@ Example APIs: [MaybeUninit.assume_init()](https://doc.rust-lang.org/std/mem/unio
 Such safety properties relate to the monadic types, including [Option](https://doc.rust-lang.org/std/option/enum.Option.html) and [Result](https://doc.rust-lang.org/std/result/enum.Result.html), and they require the value after unwarpping should be of a particular type.
 
 **psp-20: Unwrap(x, T)**
-$$\text{unwrap}(r) = x,\quad s.t., typeof(x) \in \lbrace Ok, Err, Some, None \rbrace $$
+$$\text{unwrap}(r) = x,\quad s.t., typeof(x) \in \lbrace \text{Ok}, \text{Err}, \text{Some}, \text{None} \rbrace $$
 
 Example APIs: [Option::unwrap_unchecked()](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_unchecked), [Result::unwrap_unchecked()](https://doc.rust-lang.org/core/result/enum.Result.html#method.unwrap_unchecked), [Result::unwrap_err_unchecked()](https://doc.rust-lang.org/core/result/enum.Result.html#method.unwrap_err_unchecked)
 
@@ -282,29 +282,34 @@ Example APIs: [AtomicPtr::from_ptr()](https://doc.rust-lang.org/std/sync/atomic/
 ### 3.5. More
 
 #### 3.5.1 Trait
-If the type `T` of a parameter has implemented some traits, it is guaranteed to be safe. 
 
 **psp-25: Trait(T)**
-$$t \in \text{trait}(T),\quad t \in \lbrace Copy, Unpin, Send, Sync \rbrace $$
+
+If a parameter type `T` implements certain traits, it can guarantee safety or mitigate specific hazards
+
+$$t \in \text{trait}(T),\quad t \in \lbrace \text{Copy}, \text{Unpin} \rbrace $$
+
+In particular, \\( \text{Copy} \int \text{trait}(T) \\) ensures that alias issues or Alias(p) are mitigated, and \\( \text{Unpin} \int \text{trait}(T) \\) avoids the hazard associated with pinned data or Pinned(p).
 
 Example APIs: [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html), [ptr::read_volatile()](https://doc.rust-lang.org/std/ptr/fn.read_volatile.html), [Pin::new_unchecked()](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.new_unchecked)
 
-In most cases, satisfying the trait requirements can ensure safety, but is not required, leading to a harzard status.
 
 #### 3.5.2 Thread-Safe (Atomicity)
 Refer to the [Rustnomicon](https://doc.rust-lang.org/nomicon/send-and-sync.html), it generally relates to the implementation of the Send/Sync attribute that requires update operations of a critical memory to be exclusive. 
 
 **psp-26: Send(T)**
 
-For Send, it requires: 
+Automatically verifying the correctness of the Send trait implementation for any type T is difficult. However, implementing the Send trait can be considered safe if T satisfies the following conditions:
 
 $$\forall field \in T,\quad \text{refcount}(field) = false$$
 
 (TO FIX: This should be change to a recursive form.)
 
+This is a conditional precondition for implementing the Send trait. Since implementations of Send trait must not introduce concurrency issues, we do not define corresponding hazards.
+
 **psp-27: Sync(T)**
 
-For Sync, it requires: 
+Similar to Send(T), we can define the followin optional precondition for Sync(T):
 
 $$\forall field \in T,\quad \text{interiormut}(field) = false$$
 
@@ -313,7 +318,7 @@ $$\forall field \in T,\quad \text{interiormut}(field) = false$$
 Example APIs: Auto trait [Send](https://doc.rust-lang.org/std/marker/trait.Send.html), [Sync](https://doc.rust-lang.org/std/marker/trait.Sync.html)
 
 #### 3.5.3 Pin
-Implementing Pin for !Unpin is also valid in Rust, developers should not move the Pin object pointed by p after created.
+Implementing Pin for !Unpin is also valid in Rust, developers should not move the Pin object pointed by `p` after created.
 
 **psp-28: Pinned(p)**
 
