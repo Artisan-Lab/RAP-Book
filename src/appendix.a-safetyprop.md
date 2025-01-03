@@ -70,7 +70,7 @@ In practice, a safety property may correspond to a precondition, postcondition, 
 Refer to the document of [type-layout](https://doc.rust-lang.org/reference/type-layout.html), there are three components related to layout: alignment, size, and padding.
 
 #### 3.1.1 Alignment
-Alignment is measured in bytes. It must be at least 1 and is always a power of 2. This can be expressed as \\(2^x, s.t. x\ge 0\\). A memory address of type `T` is considered aligned if the address is a multiple of alignment(T). The alignment requirement can be formalized as:
+Alignment is measured in bytes. It must be at least 1 and is always a power of 2. This can be expressed as \\(2^x, x\ge 0\\). A memory address of type `T` is considered aligned if the address is a multiple of alignment(T). The alignment requirement can be formalized as:
 
 $$ \text{addressof}(\text{instance}(T)) \\% \text{alignment}(T) = 0 $$
 
@@ -120,7 +120,7 @@ In practice, an API may enforce that a pointer `p` to a type `T` must satisfy th
 
 **psp-5: NonDangling(p, T)**: 
 
-$$\text{allocator}(p) = x, s.t., \quad x \in \lbrace \text{GlobalAllocator}, \text{OtherAllocator}, \text{stack} \rbrace || \text{sizeof}(T) = 0 $$ 
+$$\text{allocator}(p) = x, \quad x \in \lbrace GlobalAllocator, OtherAllocator, stack \rbrace || \text{sizeof}(T) = 0 $$ 
 
 **Proposition 1** (NOT SURE): NonDangling(p, T) implies NonNull(p).
 
@@ -181,13 +181,13 @@ Example API: [f32.to_int_unchecked()](https://doc.rust-lang.org/std/primitive.f3
 
 Some APIs may require the value `x` of an integer type should not be zero.
 
-**psp-13: ValidInt(binop, x, y, T)** $$T:MAX \geq isize(\text{binop} (x, y)) \geq T::MIN $$
+**psp-13: ValidInt(binop, x, y, T)** $$T::MAX \geq isize(\text{binop} (x, y)) \geq T::MIN $$
 
 Example APIs: [isize.add()](https://doc.rust-lang.org/std/primitive.isize.html#method.unchecked_add), [usize.add()](https://doc.rust-lang.org/std/primitive.usize.html#method.unchecked_add), [pointer.add(usize.add())](https://doc.rust-lang.org/std/primitive.pointer.html#method.add)
 
 Unary arithmatic operations have similar requirements.
 
-**psp-14: ValidInt(uop, x, T)** $$T:MAX \geq isize(\text{uop} (x)) \geq T::MIN $$
+**psp-14: ValidInt(uop, x, T)** $$T::MAX \geq isize(\text{uop} (x)) \geq T::MIN $$
 
 **psp-15: NotZero(x)** $$x != 0 $$
 
@@ -210,7 +210,7 @@ Example API: [String::from_raw_parts()](https://doc.rust-lang.org/std/string/str
 
 The safety properties of CString generally requires the bytes of a u8 slice or pointed by a pointer `p` shoule contains a null terminator within isize::MAX from `p`.
 
-**psp-18: ValidCStr(p, len)** $$\exists offset, s.t., *(p + offset) = null \\&\\& \text{ValidInt}(offset, isize) $$ 
+**psp-18: ValidCStr(p, len)** $$\exists offset,\quad s.t., *(p + offset) = null \\&\\& \text{ValidInt}(offset, isize) $$ 
 
 Example API: [CStr::from_bytes_with_nul_unchecked()](https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.from_bytes_with_nul_unchecked), [CStr::from_ptr()](https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.from_ptr)
 
@@ -228,7 +228,7 @@ Example APIs: [MaybeUninit.assume_init()](https://doc.rust-lang.org/std/mem/unio
 Such safety properties relate to the monadic types, including [Option](https://doc.rust-lang.org/std/option/enum.Option.html) and [Result](https://doc.rust-lang.org/std/result/enum.Result.html), and they require the value after unwarpping should be of a particular type.
 
 **psp-20: Unwrap(x, T)**
-$$\text{unwrap}(r) = x, s.t., typeof(x) \in \lbrace Ok, Err, Some, None \rbrace $$
+$$\text{unwrap}(r) = x,\quad s.t., typeof(x) \in \lbrace Ok, Err, Some, None \rbrace $$
 
 Example APIs: [Option::unwrap_unchecked()](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_unchecked), [Result::unwrap_unchecked()](https://doc.rust-lang.org/core/result/enum.Result.html#method.unwrap_unchecked), [Result::unwrap_err_unchecked()](https://doc.rust-lang.org/core/result/enum.Result.html#method.unwrap_err_unchecked)
 
@@ -256,7 +256,7 @@ Example APIs: [trait.FromRawFd::from_raw_fd()](https://doc.rust-lang.org/std/os/
 There are six types of pointers to a value x, depending on the mutabality and ownership.
 
 **psp-23: Alias(p)**
-$$\text{pointer}(x) = \bigcup p_i, s.t., p_i\in \lbrace owner, owner_{mut}, ref, ref_{mut}, ptr, ptr_{mut} \rbrace $$
+$$\text{pointer}(x) = \bigcup p_i,\quad p_i\in \lbrace owner, owner_{mut}, ref, ref_{mut}, ptr, ptr_{mut} \rbrace $$
 
 The exclusive mutability principle of Rust requires that if a value has a mutable alias at one program point, it must not have other aliases at that program point. Otherwise, it may incur unsafe status. We need to track the particular unsafe status and avoid unsafe behaviors. For example, the follow status are vulnerable:
 
@@ -285,7 +285,7 @@ Example APIs: [AtomicPtr::from_ptr()](https://doc.rust-lang.org/std/sync/atomic/
 If the type `T` of a parameter has implemented some traits, it is guaranteed to be safe. 
 
 **psp-25: Trait(T)**
-$$t \in \text{trait}(T), s.t., t \in \lbrace Copy, Unpin, Send, Sync \rbrace $$
+$$t \in \text{trait}(T),\quad t \in \lbrace Copy, Unpin, Send, Sync \rbrace $$
 
 Example APIs: [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html), [ptr::read_volatile()](https://doc.rust-lang.org/std/ptr/fn.read_volatile.html), [Pin::new_unchecked()](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.new_unchecked)
 
@@ -298,7 +298,7 @@ Refer to the [Rustnomicon](https://doc.rust-lang.org/nomicon/send-and-sync.html)
 
 For Send, it requires: 
 
-$$\forall field \in T, \text{refcount}(field) = false$$
+$$\forall field \in T,\quad \text{refcount}(field) = false$$
 
 (TO FIX: This should be change to a recursive form.)
 
@@ -306,7 +306,7 @@ $$\forall field \in T, \text{refcount}(field) = false$$
 
 For Sync, it requires: 
 
-$$\forall field \in T, \text{interiormut}(field) = false$$
+$$\forall field \in T,\quad \text{interiormut}(field) = false$$
 
 (TO FIX: This should be change to a recursive form.)
 
