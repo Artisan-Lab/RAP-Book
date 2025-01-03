@@ -134,7 +134,7 @@ Example APIs: [Arc::from_raw_in()](https://doc.rust-lang.org/std/sync/struct.Arc
 
 If the allocator `A` is unspecified, it typically defaults to the global allocator.
 
-**psp-7: AllocatorConsistency(p)**: $$\text{allocator}(p) = GlobalAllocator $$
+**psp-7: AllocatorConsistency(p)**: $$\text{allocator}(p) = \text{GlobalAllocator} $$
 
 Example APIs: [Arc::from_raw()](https://doc.rust-lang.org/std/sync/struct.Arc.html#method.from_raw),[Box::from_raw()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_raw)
 
@@ -175,19 +175,19 @@ Example APIs: [ptr::copy_nonoverlapping()](https://doc.rust-lang.org/std/ptr/fn.
 
 When converting a value `x` to an interger, the value should not be greater the max or less the min value that can be represented by the integer type `T`.
 
-**psp-12: ValidInt(x, T)** $$T::MIN \geq x \geq T::MAX $$
+**psp-12: ValidInt(x, T)** $$\text{T::MIN} \geq x \geq \text{T::MAX} $$
 
 Example API: [f32.to_int_unchecked()](https://doc.rust-lang.org/std/primitive.f32.html#method.to_int_unchecked)
 
 Some APIs may require the value `x` of an integer type should not be zero.
 
-**psp-13: ValidInt(binop, x, y, T)** $$T::MAX \geq isize(\text{binop} (x, y)) \geq T::MIN $$
+**psp-13: ValidInt(binop, x, y, T)** $$\text{T::MAX} \geq \text{binop}(x, y) \geq \text{T::MIN} $$
 
 Example APIs: [isize.add()](https://doc.rust-lang.org/std/primitive.isize.html#method.unchecked_add), [usize.add()](https://doc.rust-lang.org/std/primitive.usize.html#method.unchecked_add), [pointer.add(usize.add())](https://doc.rust-lang.org/std/primitive.pointer.html#method.add)
 
 Unary arithmatic operations have similar requirements.
 
-**psp-14: ValidInt(uop, x, T)** $$T::MAX \geq isize(\text{uop} (x)) \geq T::MIN $$
+**psp-14: ValidInt(uop, x, T)** $$\text{T::MAX} \geq \text{uop}(x) \geq \text{T::MIN} $$
 
 **psp-15: NotZero(x)** $$x != 0 $$
 
