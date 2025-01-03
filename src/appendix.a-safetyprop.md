@@ -42,7 +42,7 @@ In practice, a safety property may correspond to a precondition, postcondition, 
 | 11  | NonOverlap(p1, p2, T) | precond | [ptr::copy()](https://doc.rust-lang.org/std/ptr/fn.copy.html)  |
 | 12  | ValidInt(x, T)  | precond | [f32.to_int_unchecked()](https://doc.rust-lang.org/std/primitive.f32.html#method.to_int_unchecked)  |
 | 13  | ValidInt(binop, x, y, T)  | precond | [usize.add()](https://doc.rust-lang.org/std/primitive.usize.html#method.unchecked_add)  |
-| 14  | ValidInt(uop, x, T)  | precond |  |
+| 14  | ValidInt(uop, x, T)  | precond | not found |
 | 15  | NotZero(x)  | precond | [NonZero::from_mut_unchecked()](https://doc.rust-lang.org/beta/std/num/struct.NonZero.html#tymethod.from_mut_unchecked) |
 | 16  | ValidString(x) | precond | [String::from_utf8_unchecked()](https://doc.rust-lang.org/std/string/struct.String.html#method.from_utf8_unchecked) |
 |     | ValidString(x) | hazard | [String.as_bytes_mut()](https://doc.rust-lang.org/std/string/struct.String.html#method.as_bytes_mut) |
