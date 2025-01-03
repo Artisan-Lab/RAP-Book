@@ -6,7 +6,7 @@ This document presents a draft outlining the fundamental safety properties essen
 [MCP759](https://github.com/rust-lang/compiler-team/issues/759)  
 [std-contracts-2025h1](https://rust-lang.github.io/rust-project-goals/2025h1/std-contracts.html)  
 
-## 1. Overall Idea
+## 1 Overall Idea
 In contract design, safety properties can be categorized into two types:
 
 **Precondition**: Safety requirements that must be satisfied before invoking an unsafe API. These represent the fundamental conditions for safely using the API.
@@ -25,7 +25,7 @@ In practice, a safety property may correspond to a precondition, postcondition, 
 
 <span style="color: red;"> **In short, while preconditions must be satisfied, optional preconditions are not mandatory. Hazards highlight vulnerabilities that deviate from Rust's safety principles. Meeting optional preconditions can help avoid certain types of hazards.** </span>
 
-## 2. Summary of Primitive SPs
+## 2 Summary of Primitive SPs
 
 | ID  | Primitive SP | Usage | Example API |
 |---|---|---|---|
@@ -64,12 +64,12 @@ In practice, a safety property may correspond to a precondition, postcondition, 
 **Note**: These primitives are not yet complete. New proposals are always welcome.**
 
 
-## 3. Safety Property Analysis
+## 3 Safety Property Analysis
 
-### 3.1. Layout
+### 3.1 Layout
 Refer to the document of [type-layout](https://doc.rust-lang.org/reference/type-layout.html), there are three components related to layout: alignment, size, and padding.
 
-#### Alignment
+#### 3.1.1 Alignment
 Alignment is measured in bytes. It must be at least 1 and is always a power of 2. This can be expressed as \\(2^x, s.t. x\ge 0\\). A memory address of type `T` is considered aligned if the address is a multiple of alignment(T). The alignment requirement can be formalized as:
 
 $$ \text{addressof}(\text{instance}(T)) \\% \text{alignment}(T) = 0 $$
@@ -80,7 +80,7 @@ In practice, we generally require a pointer `p` of type `T∗` to be aligned. Th
 
 Example APIs: [ptr::read()](https://doc.rust-lang.org/nightly/std/ptr/fn.read.html), [ptr::write()](https://doc.rust-lang.org/std/ptr/fn.write.html), [Vec::from_raw_parts()](https://doc.rust-lang.org/beta/std/vec/struct.Vec.html#method.from_raw_parts)
 
-#### Size 
+#### 3.1.2 Size 
 The size of a value is the offset in bytes between successive elements in an array with that item type including alignment padding. It is always a multiple of its alignment (including 0), i.e., $\text{sizeof}(T) \\% \text{alignment}(T)=0$. 
 
 A safety property may require the size of a type `T` to be not ZST. We can formulate the requirement as 
@@ -89,7 +89,7 @@ A safety property may require the size of a type `T` to be not ZST. We can formu
 
 Example API: [NonNull.offset_from](https://doc.rust-lang.org/core/ptr/struct.NonNull.html#method.offset_from), [pointer.sub_ptr](https://doc.rust-lang.org/beta/std/primitive.pointer.html#method.sub_ptr)
 
-#### Padding 
+#### 3.1.3 Padding 
 Padding refers to the unused space inserted between successive elements in an array to ensure proper alignment. Padding is taken into account when calculating the size of each element. For example, the following data structure includes 1 byte of padding, resulting in a total size of 4 bytes.
 ```rust
 struct MyStruct { a: u16,  b: u8 } // alignment: 2; padding 1
@@ -102,7 +102,7 @@ A safety property may require the type `T` has no padding. We can formulate the 
 
 Example API: intrinsic [raw_eq()](https://doc.rust-lang.org/std/intrinsics/fn.raw_eq.html)
 
-### 3.2. Pointer Validity
+### 3.2 Pointer Validity
 
 Referring to the [pointer validity](https://doc.rust-lang.org/std/ptr/index.html#safety) documentation, whether a pointer is valid depends on the context of its usage, and the criteria vary across different APIs. To better describe pointer validity and reduce ambiguity, we break down the concept into several primitive components.
 
@@ -113,7 +113,7 @@ The memory address that the pointer refers to is critical. A safety property may
 
 Example APIs: [NonNull::new_unchecked()](https://doc.rust-lang.org/std/ptr/struct.NonNull.html#method.new_unchecked), [Box::from_non_null()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_non_null)
 
-#### Allocation
+#### 3.2.1 Allocation
 To determine whether the memory address referenced by a pointer is available for use or has been allocated by the system (either on the heap or the stack), we consider the related safety requirement: non-dangling. This means the pointer must refer to a valid memory address that has not been deallocated on the heap or remains valid on the stack.
 
 In practice, an API may enforce that a pointer `p` to a type `T` must satisfy the non-dangling property.
@@ -138,7 +138,7 @@ If the allocator `A` is unspecified, it typically defaults to the global allocat
 
 Example APIs: [Arc::from_raw()](https://doc.rust-lang.org/std/sync/struct.Arc.html#method.from_raw),[Box::from_raw()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_raw)
 
-#### Pointee
+#### 3.2.2 Pointee
 
 A safety property may require that a pointer `p` refers to a value of a specific type `T`. This property can be formalized as:
 
@@ -148,7 +148,7 @@ A safety property may require that a pointer `p` refers to a value of a specific
 
 Example APIs: [ptr::read()](https://doc.rust-lang.org/beta/std/primitive.pointer.html#method.read), [ptr::offset()](https://doc.rust-lang.org/beta/std/primitive.pointer.html#method.offset)
 
-#### Derived Safety Properties
+#### 3.2.3 Derived Safety Properties
 There are two useful derived safety properties based on the previous components.
 
 The first one is bounded access, which requires that the pointer access with respet to an offset stays within the bound. This ensures that dereferencing the pointer results in a value of the expected type T.
@@ -171,7 +171,7 @@ Example APIs: [ptr::copy_nonoverlapping()](https://doc.rust-lang.org/std/ptr/fn.
  
 ### 3.3. Content
 
-#### Integer
+#### 3.3.1 Integer
 
 When converting a value `x` to an interger, the value should not be greater the max or less the min value that can be represented by the integer type `T`.
 
@@ -195,7 +195,7 @@ Example API: [NonZero::from_mut_unchecked()](https://doc.rust-lang.org/beta/std/
 
 The result of interger arithmatic of two values `x` and `y` of type `T` should not overflow the max or the main value.
 
-#### String
+#### 3.3.2 String
 There are two types of string in Rust, [String](https://doc.rust-lang.org/std/string/struct.String.htm) which requires valid utf-8 format, and [CStr](https://doc.rust-lang.org/std/ffi/struct.CStr.html) for interacting with foreign functions.
 
 The safety properties of String generally requires the bytes contained in a vector `v` or pointed by a pointer `p` of length `len` should be a valid utf-8.
@@ -214,7 +214,7 @@ The safety properties of CString generally requires the bytes of a u8 slice or p
 
 Example API: [CStr::from_bytes_with_nul_unchecked()](https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.from_bytes_with_nul_unchecked), [CStr::from_ptr()](https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.from_ptr)
 
-#### Initialization
+#### 3.3.3 Initialization
 A safety property may require the memory of type `T` pointed by a pointer `p` is initialized.
 
 **psp-19: Init(p, T)**
@@ -223,7 +223,7 @@ $$\text{init}(*p, T) = true $$
 
 Example APIs: [MaybeUninit.assume_init()](https://doc.rust-lang.org/std/mem/union.MaybeUninit.html#method.assume_init), [Box::assume_init()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.assume_init)
 
-#### Unwrap
+#### 3.3.4 Unwrap
 
 Such safety properties relate to the monadic types, including [Option](https://doc.rust-lang.org/std/option/enum.Option.html) and [Result](https://doc.rust-lang.org/std/result/enum.Result.html), and they require the value after unwarpping should be of a particular type.
 
@@ -232,10 +232,10 @@ $$\text{unwrap}(r) = x, s.t., typeof(x) \in \lbrace Ok, Err, Some, None \rbrace 
 
 Example APIs: [Option::unwrap_unchecked()](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_unchecked), [Result::unwrap_unchecked()](https://doc.rust-lang.org/core/result/enum.Result.html#method.unwrap_unchecked), [Result::unwrap_err_unchecked()](https://doc.rust-lang.org/core/result/enum.Result.html#method.unwrap_err_unchecked)
 
-### 3.4. Aliases
+### 3.4 Aliases
 This category relates to the core mechanism of Rust which aims to avoid shared mutable aliases and achieve automated memory deallocation. 
 
-#### Onwership
+#### 3.4.1 Onwership
 Let one value has two owners at the same program point is vulnerable to double free. Refer to the traidional vulnerbility of [mem::forget()](https://doc.rust-lang.org/std/mem/fn.forget.html) compared to [ManuallyDrop](https://doc.rust-lang.org/std/mem/struct.ManuallyDrop.html). The property generally relates to convert a raw pointer to an ownership, and it can be represented as:
 
 **psp-21: NotOwned(p)**
@@ -252,7 +252,7 @@ Example APIs: [trait.FromRawFd::from_raw_fd()](https://doc.rust-lang.org/std/os/
 
 (TO FIX: there should be similar issues for other RAII resources, we may not need this because FFI memories cannot require owned.)
 
-#### Alias
+#### 3.4.2 Alias
 There are six types of pointers to a value x, depending on the mutabality and ownership.
 
 **psp-23: Alias(p)**
@@ -270,7 +270,7 @@ Because it violates the exclusive mutability principle requires\\(owner_{mut}\\)
 
 Example APIs: [pointer.as_mut()](https://doc.rust-lang.org/std/primitive.pointer.html#method.as_mut), [pointer.as_ref()](https://doc.rust-lang.org/std/primitive.pointer.html#method.as_ref-1), [pointer.as_ref_unchecked()](https://doc.rust-lang.org/std/primitive.pointer.html#method.as_ref_unchecked-1)
 
-#### Lifetime
+#### 3.4.3 Lifetime
 
 The property generally requires the lifetime of a raw pointer `p` must be valid for both reads and writes for the whole lifetime 'a.
 
@@ -281,7 +281,7 @@ Example APIs: [AtomicPtr::from_ptr()](https://doc.rust-lang.org/std/sync/atomic/
 
 ### 3.5. More
 
-#### Trait
+#### 3.5.1 Trait
 If the type `T` of a parameter has implemented some traits, it is guaranteed to be safe. 
 
 **psp-25: Trait(T)**
@@ -291,7 +291,7 @@ Example APIs: [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html), [pt
 
 In most cases, satisfying the trait requirements can ensure safety, but is not required, leading to a harzard status.
 
-#### Thread-Safe (Atomicity)
+#### 3.5.2 Thread-Safe (Atomicity)
 Refer to the [Rustnomicon](https://doc.rust-lang.org/nomicon/send-and-sync.html), it generally relates to the implementation of the Send/Sync attribute that requires update operations of a critical memory to be exclusive. 
 
 **psp-26: Send(T)**
@@ -312,7 +312,7 @@ $$\forall field \in T, \texttt{interiormut}(field) = false$$
 
 Example APIs: Auto trait [Send](https://doc.rust-lang.org/std/marker/trait.Send.html), [Sync](https://doc.rust-lang.org/std/marker/trait.Sync.html)
 
-#### Pin
+#### 3.5.3 Pin
 Implementing Pin for !Unpin is also valid in Rust, developers should not move the Pin object pointed by p after created.
 
 **psp-28: Pinned(p)**
@@ -321,7 +321,7 @@ $$pinned(*p) = true$$
 
 Example APIs: [Pin::new_unchecked()](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.new_unchecked),[Pin.into_inner_unchecked()](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.into_inner_unchecked), [Pin.map_unchecked()](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.map_unchecked), [Pin.get_unchecked_mut()](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.get_unchecked_mut), [Pin.map_unchecked_mut](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.map_unchecked_mut)
 
-#### File Read/Write
+#### 3.5.4 File Read/Write
 
 The file discripter `fd` must be opened.
 
@@ -331,7 +331,7 @@ $$\text{opened}(fd) = true$$
 
 Example APIs: [trait.FromRawFd::from_raw_fd()](https://doc.rust-lang.org/std/os/fd/trait.FromRawFd.html#tymethod.from_raw_fd), [UdpSocket::from_raw_socket()](https://doc.rust-lang.org/std/net/struct.UdpSocket.html#method.from_raw_socket)
 
-#### Volatility
+#### 3.5.5 Volatility
 
 There are specific APIs for volatile memory access in std-lib, like [ptr::read_volatile](https://doc.rust-lang.org/std/ptr/fn.read_volatile.html) and [ptr::write_volatile](https://doc.rust-lang.org/std/ptr/fn.write_volatile.html). Other memory operations should require non-volatile by default.
 
