@@ -181,13 +181,13 @@ Example API: [f32.to_int_unchecked()](https://doc.rust-lang.org/std/primitive.f3
 
 Some APIs may require the value `x` of an integer type should not be zero.
 
-**psp-13: ValidInt(binop, x, y, T)** $$T:MAX \leq isize(\text{binop} (x, y)) \geq T::MIN $$
+**psp-13: ValidInt(binop, x, y, T)** $$T:MAX \geq isize(\text{binop} (x, y)) \geq T::MIN $$
 
 Example APIs: [isize.add()](https://doc.rust-lang.org/std/primitive.isize.html#method.unchecked_add), [usize.add()](https://doc.rust-lang.org/std/primitive.usize.html#method.unchecked_add), [pointer.add(usize.add())](https://doc.rust-lang.org/std/primitive.pointer.html#method.add)
 
 Unary arithmatic operations have similar requirements.
 
-**psp-14: ValidInt(uop, x, T)** $$T:MAX \leq isize(\text{uop} (x)) \geq T::MIN $$
+**psp-14: ValidInt(uop, x, T)** $$T:MAX \geq isize(\text{uop} (x)) \geq T::MIN $$
 
 **psp-15: NotZero(x)** $$x != 0 $$
 
