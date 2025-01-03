@@ -235,7 +235,7 @@ Example APIs: [Option::unwrap_unchecked()](https://doc.rust-lang.org/std/option/
 ### 3.4. Aliases
 This category relates to the core mechanism of Rust which aims to avoid shared mutable aliases and achieve automated memory deallocation. 
 
-#### k) Onwership
+#### Onwership
 Let one value has two owners at the same program point is vulnerable to double free. Refer to the traidional vulnerbility of [mem::forget()](https://doc.rust-lang.org/std/mem/fn.forget.html) compared to [ManuallyDrop](https://doc.rust-lang.org/std/mem/struct.ManuallyDrop.html). The property generally relates to convert a raw pointer to an ownership, and it can be represented as:
 
 **psp-21: NotOwned(p)**
@@ -252,7 +252,7 @@ Example APIs: [trait.FromRawFd::from_raw_fd()](https://doc.rust-lang.org/std/os/
 
 (TO FIX: there should be similar issues for other RAII resources, we may not need this because FFI memories cannot require owned.)
 
-#### m) Alias
+#### Alias
 There are six types of pointers to a value x, depending on the mutabality and ownership.
 
 **psp-23: Alias(p)**
