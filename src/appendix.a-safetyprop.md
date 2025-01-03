@@ -56,7 +56,7 @@ In practice, a safety property may correspond to a precondition, postcondition, 
 | 24  | Lifetime(p, 'a)  | precond | [AtomicPtr::from_ptr()](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicPtr.html#method.from_ptr)  |
 | 25  | Trait(T)  | option | [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html)  |
 | 26  | Send(T)  | option | https://doc.rust-lang.org/std/marker/trait.Send.html |
-| 28  | Sync(T)  | option | https://doc.rust-lang.org/std/marker/trait.Sync.html |
+| 27  | Sync(T)  | option | https://doc.rust-lang.org/std/marker/trait.Sync.html |
 | 28  | Pinned(p)  | hazard | [Pin::new_unchecked()](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.new_unchecked)  |
 | 29  | Opened(fd) | precond | [trait.FromRawFd::from_raw_fd()](https://doc.rust-lang.org/std/os/fd/trait.FromRawFd.html#tymethod.from_raw_fd)  |
 | 30  | NonVolatile(p) | precond | [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html) |
