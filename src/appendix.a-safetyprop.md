@@ -341,6 +341,6 @@ $$volatile(*p) = false$$
 
 Example APIs: [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html), [ptr::write()](https://doc.rust-lang.org/std/ptr/fn.write.html)
 
-### 4.Primitive Properties Yet to Be Considered
+### 4 Primitive Properties Yet to Be Considered
 
 -[GlobalAlloc](https://doc.rust-lang.org/std/alloc/trait.GlobalAlloc.html)
