@@ -260,7 +260,7 @@ $$\text{pointer}(x) = \bigcup p_i,\ p_i\in \lbrace \text{O, Om, R, Rm, P, Pm} \r
 
 The exclusive mutability principle of Rust requires that if a value has a mutable alias at one program point, it must not have other aliases at that program point. Otherwise, it may incur unsafe status. We need to track the particular unsafe status and avoid unsafe behaviors. For example, the follow status are vulnerable:
 
-$$ \text{pointer}(x) = {p1, p2, p3 | p1 \in \text{Om}, p2 \in \text{P}, and p3 \in \text{R}} $$
+$$ \text{pointer}(x) = \lbrace p1, p2, p3 | p1 \in \text{Om}, p2 \in \text{P}, \text{and}\ p3 \in \text{R} \rbrace $$
 
 Because it violates the exclusive mutability principle, which requires that a mutable owner and any references to it must not coexist at the same program point.
 
