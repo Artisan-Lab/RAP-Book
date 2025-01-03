@@ -210,9 +210,9 @@ Example API: [String::from_raw_parts()](https://doc.rust-lang.org/std/string/str
 
 The safety properties of CString generally requires the bytes of a u8 slice or pointed by a pointer `p` shoule contains a null terminator within isize::MAX from `p`.
 
-**psp-18: ValidCStr(p, len)** $$\exists offset, s.t., *(p + offset) = '\0' \&\& \text{ValidInt}(offset, isize) $$ 
+**psp-18: ValidCStr(p, len)** $$\exists offset, s.t., *(p + offset) = null \&\& \text{ValidInt}(offset, isize) $$ 
 
-$$\exists offset$$
+
 
 Example API: [CStr::from_bytes_with_nul_unchecked()](https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.from_bytes_with_nul_unchecked), [CStr::from_ptr()](https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.from_ptr)
 
