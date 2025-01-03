@@ -35,22 +35,33 @@ In practice, a safety property may correspond to a precondition, postcondition, 
 | 4  | NonNull(p) | precond  | [NonNull::new_unchecked()](https://doc.rust-lang.org/std/ptr/struct.NonNull.html#method.new_unchecked) |
 | 5  | NonDangling(p, T) | precond| [ptr::offset()](https://doc.rust-lang.org/beta/std/primitive.pointer.html#method.offset) |
 | 6  | AllocatorConsistency(p, A) | precond | [Box::from_raw_in()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_raw_in) |
-| 7  | Pointee(p, T)  | precond  |   |
-| 8  | Bounded(p, T, offset)  | precond | [ptr::offset()](https://doc.rust-lang.org/std/primitive.pointer.html#method.offset)  |
-| 9  | NonOverlap(\\(p_{dst}\\), \\(p_{src}\\), T, count) | precond | [ptr::copy_nonoverlapping()](https://doc.rust-lang.org/std/ptr/fn.copy_nonoverlapping.html)  |
-| 10  | ValidInt(x, T)  | precond | [f32.to_int_unchecked()](https://doc.rust-lang.org/std/primitive.f32.html#method.to_int_unchecked)  |
-| 11  | ValidString(p, len) | precond | [String::from_utf8_unchecked()](https://doc.rust-lang.org/std/string/struct.String.html#method.from_utf8_unchecked) |
-| 12  | ValidCStr(p, len) |  precond|  [CStr::from_bytes_with_nul_unchecked()](https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.from_bytes_with_nul_unchecked)  |
-| 13  | Init(p, T)  | precond | [Box::assume_init()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.assume_init)  |
-| 14  | Unwrap(x, T)  | precond | [Option::unwrap_unchecked()](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_unchecked)  |
-| 15  | NotOwned(p)  | precond | [Box::from_raw()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_raw)  |
-| 16  | Alias(p)  | hazard | [pointer.as_mut()](https://doc.rust-lang.org/std/primitive.pointer.html#method.as_mut) |
-| 17  | Lifetime(p, 'a)  | precond | [AtomicPtr::from_ptr()](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicPtr.html#method.from_ptr)  |
-| 18  | Trait(T)  | option | [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html)  |
-| 19  | ThreadSafe(T, Send)  | option |   |
-| 20  | Pinned(p)  | hazard | [Pin::new_unchecked()](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.new_unchecked)  |
-| 21  | Opened(fd) | precond | [trait.FromRawFd::from_raw_fd()](https://doc.rust-lang.org/std/os/fd/trait.FromRawFd.html#tymethod.from_raw_fd)  |
-| 22  | NonVolatile(p) | precond | [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html) |
+| 7  | AllocatorConsistency(p) | precond | [Box::from_raw()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_raw) |
+| 8  | Pointee(p, T)  | precond  | [ptr::read()](https://doc.rust-lang.org/beta/std/primitive.pointer.html#method.read)  |
+| 9  | Bounded(p, T, offset)  | precond | [ptr::offset()](https://doc.rust-lang.org/std/primitive.pointer.html#method.offset)  |
+| 10  | NonOverlap(\\(p_{dst}\\), \\(p_{src}\\), T, count) | precond | [ptr::copy_nonoverlapping()](https://doc.rust-lang.org/std/ptr/fn.copy_nonoverlapping.html)  |
+| 11  | NonOverlap(\\(p_{dst}\\), \\(p_{src}\\), T) | precond | [ptr::copy()](https://doc.rust-lang.org/std/ptr/fn.copy.html)  |
+| 12  | ValidInt(x, T)  | precond | [f32.to_int_unchecked()](https://doc.rust-lang.org/std/primitive.f32.html#method.to_int_unchecked)  |
+| 13  | ValidInt(binop, x, y, T)  | precond | [usize.add()](https://doc.rust-lang.org/std/primitive.usize.html#method.unchecked_add)  |
+| 14  | ValidInt(uop, x, T)  | precond |  |
+| 15  | NotZero(x)  | precond | [NonZero::from_mut_unchecked()](https://doc.rust-lang.org/beta/std/num/struct.NonZero.html#tymethod.from_mut_unchecked) |
+| 16  | ValidString(x) | precond | [String::from_utf8_unchecked()](https://doc.rust-lang.org/std/string/struct.String.html#method.from_utf8_unchecked) |
+|     | ValidString(x) | hazard | [String.as_bytes_mut()](https://doc.rust-lang.org/std/string/struct.String.html#method.as_bytes_mut) |
+| 17  | ValidString(p, len) | precond | [String::from_raw_parts()](https://doc.rust-lang.org/std/string/struct.String.html#method.from_raw_parts) |
+| 18  | ValidCStr(p, len) |  precond|  [CStr::from_bytes_with_nul_unchecked()](https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.from_bytes_with_nul_unchecked)  |
+| 19  | Init(p, T)  | precond | [Box::assume_init()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.assume_init)  |
+| 20  | Unwrap(x, T)  | precond | [Option::unwrap_unchecked()](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_unchecked)  |
+| 21  | NotOwned(p)  | precond | [Box::from_raw()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_raw)  |
+| 22  | Owned(p)  | precond | [trait.FromRawFd::from_raw_fd()](https://doc.rust-lang.org/std/os/fd/trait.FromRawFd.html#tymethod.from_raw_fd)  |
+| 23  | Alias(p)  | hazard | [pointer.as_mut()](https://doc.rust-lang.org/std/primitive.pointer.html#method.as_mut) |
+| 24  | Lifetime(p, 'a)  | precond | [AtomicPtr::from_ptr()](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicPtr.html#method.from_ptr)  |
+| 25  | Trait(T)  | option | [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html)  |
+| 26  | Send(T)  | option | https://doc.rust-lang.org/std/marker/trait.Send.html |
+| 28  | Sync(T)  | option | https://doc.rust-lang.org/std/marker/trait.Sync.html |
+| 28  | Pinned(p)  | hazard | [Pin::new_unchecked()](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.new_unchecked)  |
+| 29  | Opened(fd) | precond | [trait.FromRawFd::from_raw_fd()](https://doc.rust-lang.org/std/os/fd/trait.FromRawFd.html#tymethod.from_raw_fd)  |
+| 30  | NonVolatile(p) | precond | [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html) |
+
+**Note**: These primitives are not yet complete. New proposals are always welcome.**
 
 
 ## 3. Safety Property Analysis
@@ -123,7 +134,7 @@ Example APIs: [Arc::from_raw_in()](https://doc.rust-lang.org/std/sync/struct.Arc
 
 If the allocator `A` is unspecified, it typically defaults to the global allocator.
 
-**psp-6.1: AllocatorConsistency(p)**: $$\text{allocator}(p) = GlobalAllocator $$
+**psp-7: AllocatorConsistency(p)**: $$\text{allocator}(p) = GlobalAllocator $$
 
 Example APIs: [Arc::from_raw()](https://doc.rust-lang.org/std/sync/struct.Arc.html#method.from_raw),[Box::from_raw()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_raw)
 
@@ -131,9 +142,11 @@ Example APIs: [Arc::from_raw()](https://doc.rust-lang.org/std/sync/struct.Arc.ht
 
 A safety property may require that a pointer `p` refers to a value of a specific type `T`. This property can be formalized as:
 
-**psp-7: Pointee(p, T)**: $$\text{typeof}(*p) = T $$
+**psp-8: Pointee(p, T)**: $$\text{typeof}(*p) = T $$
 
 **Proposition 2** (NOT SURE): Pointee(p, T) implies NonDangling(p, T) and  NonNull(p).
+
+Example APIs: [ptr::read()](https://doc.rust-lang.org/beta/std/primitive.pointer.html#method.read), [ptr::offset()](https://doc.rust-lang.org/beta/std/primitive.pointer.html#method.offset)
 
 #### Derived Safety Properties
 There are two useful derived safety properties based on the previous components.
@@ -146,13 +159,13 @@ Example APIs: [ptr::offset()](https://doc.rust-lang.org/std/primitive.pointer.ht
 
 A safety property may require the two pointers do not overlap with respect to `T`: 
 
-**psp-9: NonOverlap(\\(p_{dst}\\), \\(p_{src}\\), T)**: $$|p_{dst} - p_{src}| > \text{sizeof}(T)$$
+**psp-10: NonOverlap(\\(p_{dst}\\), \\(p_{src}\\), T)**: $$|p_{dst} - p_{src}| > \text{sizeof}(T)$$
 
 Example APIs: [ptr::copy_from()](https://doc.rust-lang.org/std/ptr/fn.copy.html), [ptr.copy()](https://doc.rust-lang.org/std/ptr/fn.copy_from.html) 
 
 It may also require the two pointers do not overlap with respect to $T\times count$: 
 
-**psp-9.1: NonOverlap(\\(p_{dst}\\), \\(p_{src}\\), T, count)**: $$|p_{dst} - p_{src}| > \text{sizeof}(T) * count $$
+**psp-11: NonOverlap(\\(p_{dst}\\), \\(p_{src}\\), T, count)**: $$|p_{dst} - p_{src}| > \text{sizeof}(T) * count $$
 
 Example APIs: [ptr::copy_nonoverlapping()](https://doc.rust-lang.org/std/ptr/fn.copy_nonoverlapping.html), [ptr.copy_from_nonoverlapping](https://doc.rust-lang.org/core/primitive.pointer.html#method.copy_from_nonoverlapping)
  
@@ -162,47 +175,49 @@ Example APIs: [ptr::copy_nonoverlapping()](https://doc.rust-lang.org/std/ptr/fn.
 
 When converting a value `x` to an interger, the value should not be greater the max or less the min value that can be represented by the integer type `T`.
 
-**psp-10: ValidInt(x, T)** $$T::MIN \leq x \geq T::MAX $$
+**psp-12: ValidInt(x, T)** $$T::MIN \leq x \geq T::MAX $$
 
 Example API: [f32.to_int_unchecked()](https://doc.rust-lang.org/std/primitive.f32.html#method.to_int_unchecked)
 
 Some APIs may require the value `x` of an integer type should not be zero.
 
-**psp-10.1: ValidInt(x, !0)** $$x != 0 $$
-
-Example API: [NonZero::from_mut_unchecked()](https://doc.rust-lang.org/beta/std/num/struct.NonZero.html#tymethod.from_mut_unchecked)
-
-The result of interger arithmatic of two values `x` and `y` of type `T` should not overflow the max or the main value.
-
-**psp-10.2: ValidInt(binop, x, y, T)** $$T:MAX \leq isize(\text{binop} (x, y)) \geq T::MIN $$
+**psp-13: ValidInt(binop, x, y, T)** $$T:MAX \leq isize(\text{binop} (x, y)) \geq T::MIN $$
 
 Example APIs: [isize.add()](https://doc.rust-lang.org/std/primitive.isize.html#method.unchecked_add), [usize.add()](https://doc.rust-lang.org/std/primitive.usize.html#method.unchecked_add), [pointer.add(usize.add())](https://doc.rust-lang.org/std/primitive.pointer.html#method.add)
 
 Unary arithmatic operations have similar requirements.
 
-**psp-10.3: ValidInt(uop, x, T)** $$T:MAX \leq isize(\text{uop} (x)) \geq T::MIN $$
+**psp-14: ValidInt(uop, x, T)** $$T:MAX \leq isize(\text{uop} (x)) \geq T::MIN $$
+
+**psp-15: NotZero(x)** $$x != 0 $$
+
+Example API: [NonZero::from_mut_unchecked()](https://doc.rust-lang.org/beta/std/num/struct.NonZero.html#tymethod.from_mut_unchecked)
+
+The result of interger arithmatic of two values `x` and `y` of type `T` should not overflow the max or the main value.
 
 #### String
 There are two types of string in Rust, [String](https://doc.rust-lang.org/std/string/struct.String.htm) which requires valid utf-8 format, and [CStr](https://doc.rust-lang.org/std/ffi/struct.CStr.html) for interacting with foreign functions.
 
 The safety properties of String generally requires the bytes contained in a vector `v` or pointed by a pointer `p` of length `len` should be a valid utf-8.
 
-**psp-11: ValidString(x)** $$x\in utf-8$$
+**psp-16: ValidString(x)** $$x\in utf-8$$
 
-**psp-11.1: ValidString(p, len)** $$x\in utf-8$$
+Example APIs: [String::from_utf8_unchecked()](https://doc.rust-lang.org/std/string/struct.String.html#method.from_utf8_unchecked), [String.as_bytes_mut()](https://doc.rust-lang.org/std/string/struct.String.html#method.as_bytes_mut)(This API introduces hazard).
 
-Example APIs: [String::from_utf8_unchecked()](https://doc.rust-lang.org/std/string/struct.String.html#method.from_utf8_unchecked), [String::from_raw_parts()](https://doc.rust-lang.org/std/string/struct.String.html#method.from_raw_parts), [String.as_bytes_mut()](https://doc.rust-lang.org/std/string/struct.String.html#method.as_bytes_mut)(This API introduces hazard).
+**psp-17: ValidString(p, len)** $$content(p, p+len) \in utf-8$$
+
+Example API: [String::from_raw_parts()](https://doc.rust-lang.org/std/string/struct.String.html#method.from_raw_parts).
 
 The safety properties of CString generally requires the bytes of a u8 slice or pointed by a pointer `p` shoule contains a null terminator within isize::MAX from `p`.
 
-**psp-12: ValidCStr(p, len)** \\[\exists offset, s.t., *(p + offset) = '\0' \&\& \text{ValidInt}(offset, isize) \\]
+**psp-18: ValidCStr(p, len)** \\[\exists offset, s.t., *(p + offset) = '\0' \&\& \text{ValidInt}(offset, isize) \\]
 
 Example API: [CStr::from_bytes_with_nul_unchecked()](https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.from_bytes_with_nul_unchecked), [CStr::from_ptr()](https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.from_ptr)
 
 #### Initialization
 A safety property may require the memory of type `T` pointed by a pointer `p` is initialized.
 
-**psp-13: Init(p, T)**
+**psp-19: Init(p, T)**
 
 $$\text{init}(*p, T) = true $$
 
@@ -212,7 +227,7 @@ Example APIs: [MaybeUninit.assume_init()](https://doc.rust-lang.org/std/mem/unio
 
 Such safety properties relate to the monadic types, including [Option](https://doc.rust-lang.org/std/option/enum.Option.html) and [Result](https://doc.rust-lang.org/std/result/enum.Result.html), and they require the value after unwarpping should be of a particular type.
 
-**psp-14: Unwrap(x, T)**
+**psp-20: Unwrap(x, T)**
 $$\text{unwrap}(r) = x, s.t., typeof(x) \in \lbrace Ok, Err, Some, None \rbrace $$
 
 Example APIs: [Option::unwrap_unchecked()](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_unchecked), [Result::unwrap_unchecked()](https://doc.rust-lang.org/core/result/enum.Result.html#method.unwrap_unchecked), [Result::unwrap_err_unchecked()](https://doc.rust-lang.org/core/result/enum.Result.html#method.unwrap_err_unchecked)
@@ -223,13 +238,13 @@ This category relates to the core mechanism of Rust which aims to avoid shared m
 #### k) Onwership
 Let one value has two owners at the same program point is vulnerable to double free. Refer to the traidional vulnerbility of [mem::forget()](https://doc.rust-lang.org/std/mem/fn.forget.html) compared to [ManuallyDrop](https://doc.rust-lang.org/std/mem/struct.ManuallyDrop.html). The property generally relates to convert a raw pointer to an ownership, and it can be represented as:
 
-**psp-15: NotOwned(p)**
+**psp-21: NotOwned(p)**
 
 $$\text{hasowner}(*p) = false $$
 
 Example APIs: [Box::from_raw()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_raw), [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html), [ptr::read_volatile()](https://doc.rust-lang.org/std/ptr/fn.read_volatile.html),
 
-**psp-15.1: Owned(p)**
+**psp-22: Owned(p)**
 
 $$\text{hasowner}(*p) = true $$
 
@@ -240,7 +255,7 @@ Example APIs: [trait.FromRawFd::from_raw_fd()](https://doc.rust-lang.org/std/os/
 #### m) Alias
 There are six types of pointers to a value x, depending on the mutabality and ownership.
 
-**psp-16: Alias(p)**
+**psp-23: Alias(p)**
 $$\text{pointer}(x) = \bigcup p_i, s.t., p_i\in \lbrace owner, owner_{mut}, ref, ref_{mut}, ptr, ptr_{mut} \rbrace $$
 
 The exclusive mutability principle of Rust requires that if a value has a mutable alias at one program point, it must not have other aliases at that program point. Otherwise, it may incur unsafe status. We need to track the particular unsafe status and avoid unsafe behaviors. For example, the follow status are vulnerable:
@@ -259,7 +274,7 @@ Example APIs: [pointer.as_mut()](https://doc.rust-lang.org/std/primitive.pointer
 
 The property generally requires the lifetime of a raw pointer `p` must be valid for both reads and writes for the whole lifetime 'a.
 
-**psp-17: Lifetime(p, 'a)**
+**psp-24: Lifetime(p, 'a)**
 $$\text{lifetime}(*p)>\'a$$
 
 Example APIs: [AtomicPtr::from_ptr()](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicPtr.html#method.from_ptr), [AtomicBool::from_ptr()](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicBool.html#method.from_ptr), [CStr::from_ptr()](https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.from_ptr)
@@ -269,7 +284,7 @@ Example APIs: [AtomicPtr::from_ptr()](https://doc.rust-lang.org/std/sync/atomic/
 #### Trait
 If the type `T` of a parameter has implemented some traits, it is guaranteed to be safe. 
 
-**psp-18: Trait(T)**
+**psp-25: Trait(T)**
 $$t \in \text{trait}(T), s.t., t \in \lbrace Copy, Unpin, Send, Sync \rbrace $$
 
 Example APIs: [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html), [ptr::read_volatile()](https://doc.rust-lang.org/std/ptr/fn.read_volatile.html), [Pin::new_unchecked()](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.new_unchecked)
@@ -279,7 +294,7 @@ In most cases, satisfying the trait requirements can ensure safety, but is not r
 #### Thread-Safe (Atomicity)
 Refer to the [Rustnomicon](https://doc.rust-lang.org/nomicon/send-and-sync.html), it generally relates to the implementation of the Send/Sync attribute that requires update operations of a critical memory to be exclusive. 
 
-**psp-19: ThreadSafe(T, Send)**
+**psp-26: Send(T)**
 
 For Send, it requires: 
 
@@ -287,7 +302,7 @@ $$\forall field \in T, \texttt{refcount}(field) = false$$
 
 (TO FIX: This should be change to a recursive form.)
 
-**psp-19.1: ThreadSafe(T, Sync)**
+**psp-27: Sync(T)**
 
 For Sync, it requires: 
 
@@ -300,7 +315,7 @@ Example APIs: Auto trait [Send](https://doc.rust-lang.org/std/marker/trait.Send.
 #### Pin
 Implementing Pin for !Unpin is also valid in Rust, developers should not move the Pin object pointed by p after created.
 
-**psp-20: Pinned(p)**
+**psp-28: Pinned(p)**
 
 $$pinned(*p) = true$$
 
@@ -310,7 +325,7 @@ Example APIs: [Pin::new_unchecked()](https://doc.rust-lang.org/std/pin/struct.Pi
 
 The file discripter `fd` must be opened.
 
-**psp-21: Opened(fd)**
+**psp-29: Opened(fd)**
 
 $$\text{opened}(fd) = true$$
 
@@ -320,8 +335,12 @@ Example APIs: [trait.FromRawFd::from_raw_fd()](https://doc.rust-lang.org/std/os/
 
 There are specific APIs for volatile memory access in std-lib, like [ptr::read_volatile](https://doc.rust-lang.org/std/ptr/fn.read_volatile.html) and [ptr::write_volatile](https://doc.rust-lang.org/std/ptr/fn.write_volatile.html). Other memory operations should require non-volatile by default.
 
-**psp-22: NonVolatile(p)**
+**psp-30: NonVolatile(p)**
 
 $$volatile(*p) = false$$
 
 Example APIs: [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html), [ptr::write()](https://doc.rust-lang.org/std/ptr/fn.write.html)
+
+### 4.Primitive Properties Yet to Be Considered
+
+-[GlobalAlloc](https://doc.rust-lang.org/std/alloc/trait.GlobalAlloc.html)
