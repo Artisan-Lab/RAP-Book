@@ -253,20 +253,20 @@ Example APIs: [trait.FromRawFd::from_raw_fd()](https://doc.rust-lang.org/std/os/
 (TO FIX: there should be similar issues for other RAII resources, we may not need this because FFI memories cannot require owned.)
 
 #### 3.4.2 Alias
-There are six types of pointers to a value x, depending on the mutabality and ownership.
+There are six types of pointers to a value x, depending on the mutabality and ownership, i.e., owner, mutable owner, reference, mutable reference, raw pointer, mutable raw pointer 
 
 **psp-23: Alias(p)**
-$$\text{pointer}(x) = \bigcup p_i,\ p_i\in \lbrace \text{owner}, \text{owner_{mut}}, \text{ref}, \text{ref_{mut}}, \text{ptr}, \text{ptr_{mut}} \rbrace $$
+$$\text{pointer}(x) = \bigcup p_i,\ p_i\in \lbrace \text{O, Om, R, Rm, P, Pm} \rbrace $$
 
 The exclusive mutability principle of Rust requires that if a value has a mutable alias at one program point, it must not have other aliases at that program point. Otherwise, it may incur unsafe status. We need to track the particular unsafe status and avoid unsafe behaviors. For example, the follow status are vulnerable:
 
-$$ \text{pointer}(x) = \text{owner_{mut}} \cup \text{ptr} \cup \text{ref} $$
+$$ \text{pointer}(x) = \text{Om} \cup \text{P} \cup \text{R} $$
 
-Because it violates the exclusive mutability principle requires \\(owner_{mut}\\) and \\(ref\\) should not exist at the same program point.
+Because it violates the exclusive mutability principle, which requires that a mutable owner and any references to it must not coexist at the same program point.
 
-$$ \text{pointer}(x) = \text{owner_{mut}} \cup \text{ptr_{mut}} \cup \text{ref_{mut}} $$
+$$ \text{pointer}(x) = \text{Om} \cup \text{Pm} \cup \text{Rm} $$
 
-Because it violates the exclusive mutability principle requires\\(owner_{mut}\\) and \\(ref_{mut}\\) should not exist at the same program point.
+Because it violates the exclusive mutability principle, which requires that a mutable owner and any mutable references to it must not coexist at the same program point.
 
 Example APIs: [pointer.as_mut()](https://doc.rust-lang.org/std/primitive.pointer.html#method.as_mut), [pointer.as_ref()](https://doc.rust-lang.org/std/primitive.pointer.html#method.as_ref-1), [pointer.as_ref_unchecked()](https://doc.rust-lang.org/std/primitive.pointer.html#method.as_ref_unchecked-1)
 
