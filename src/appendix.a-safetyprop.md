@@ -120,7 +120,7 @@ In practice, an API may enforce that a pointer `p` to a type `T` must satisfy th
 
 **psp-5: NonDangling(p, T)**: 
 
-$$\text{allocator}(p) = x, \, x \in \lbrace \text{GlobalAllocator}, \text{OtherAllocator}, \text{stack} \rbrace || \text{sizeof}(T) = 0 $$ 
+$$\text{allocator}(p) = x, \ x \in \lbrace \text{GlobalAllocator}, \text{OtherAllocator}, \text{stack} \rbrace || \text{sizeof}(T) = 0 $$ 
 
 **Proposition 1** (NOT SURE): NonDangling(p, T) implies NonNull(p).
 
@@ -210,7 +210,7 @@ Example API: [String::from_raw_parts()](https://doc.rust-lang.org/std/string/str
 
 The safety properties of CString generally requires the bytes of a u8 slice or pointed by a pointer `p` shoule contains a null terminator within isize::MAX from `p`.
 
-**psp-18: ValidCStr(p, len)** $$\exists offset,\, s.t., *(p + offset) = null \\&\\& \text{ValidInt}(offset, isize) $$ 
+**psp-18: ValidCStr(p, len)** $$\exists offset,\ s.t., *(p + offset) = null \\&\\& \text{ValidInt}(offset, isize) $$ 
 
 Example API: [CStr::from_bytes_with_nul_unchecked()](https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.from_bytes_with_nul_unchecked), [CStr::from_ptr()](https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.from_ptr)
 
@@ -228,7 +228,7 @@ Example APIs: [MaybeUninit.assume_init()](https://doc.rust-lang.org/std/mem/unio
 Such safety properties relate to the monadic types, including [Option](https://doc.rust-lang.org/std/option/enum.Option.html) and [Result](https://doc.rust-lang.org/std/result/enum.Result.html), and they require the value after unwarpping should be of a particular type.
 
 **psp-20: Unwrap(x, T)**
-$$\text{unwrap}(r) = x,\, s.t., \text{typeof}(x) \in \lbrace \text{Ok}, \text{Err}, \text{Some}, \text{None} \rbrace $$
+$$\text{unwrap}(r) = x,\ s.t., \text{typeof}(x) \in \lbrace \text{Ok}, \text{Err}, \text{Some}, \text{None} \rbrace $$
 
 Example APIs: [Option::unwrap_unchecked()](https://doc.rust-lang.org/std/option/enum.Option.html#method.unwrap_unchecked), [Result::unwrap_unchecked()](https://doc.rust-lang.org/core/result/enum.Result.html#method.unwrap_unchecked), [Result::unwrap_err_unchecked()](https://doc.rust-lang.org/core/result/enum.Result.html#method.unwrap_err_unchecked)
 
@@ -256,15 +256,15 @@ Example APIs: [trait.FromRawFd::from_raw_fd()](https://doc.rust-lang.org/std/os/
 There are six types of pointers to a value x, depending on the mutabality and ownership.
 
 **psp-23: Alias(p)**
-$$\text{pointer}(x) = \bigcup p_i,\, p_i\in \lbrace owner, owner_{mut}, ref, ref_{mut}, ptr, ptr_{mut} \rbrace $$
+$$\text{pointer}(x) = \bigcup p_i,\ p_i\in \lbrace \text{owner}, \text{owner_{mut}}, \text{ref}, \text{ref_{mut}}, \text{ptr}, \text{ptr_{mut}} \rbrace $$
 
 The exclusive mutability principle of Rust requires that if a value has a mutable alias at one program point, it must not have other aliases at that program point. Otherwise, it may incur unsafe status. We need to track the particular unsafe status and avoid unsafe behaviors. For example, the follow status are vulnerable:
 
-$$ \text{pointer}(x) = owner_{mut} \cup ptr \cup ref $$
+$$ \text{pointer}(x) = \text{owner_{mut}} \cup \text{ptr} \cup \text{ref} $$
 
 Because it violates the exclusive mutability principle requires \\(owner_{mut}\\) and \\(ref\\) should not exist at the same program point.
 
-$$ \text{pointer}(x) = owner_{mut} \cup ptr_{mut} \cup ref_{mut} $$
+$$ \text{pointer}(x) = \text{owner_{mut}} \cup \text{ptr_{mut}} \cup \text{ref_{mut}} $$
 
 Because it violates the exclusive mutability principle requires\\(owner_{mut}\\) and \\(ref_{mut}\\) should not exist at the same program point.
 
@@ -287,7 +287,7 @@ Example APIs: [AtomicPtr::from_ptr()](https://doc.rust-lang.org/std/sync/atomic/
 
 If a parameter type `T` implements certain traits, it can guarantee safety or mitigate specific hazards
 
-$$t \in \text{trait}(T),\, t \in \lbrace \text{Copy}, \text{Unpin} \rbrace $$
+$$t \in \text{trait}(T),\ t \in \lbrace \text{Copy}, \text{Unpin} \rbrace $$
 
 In particular, \\( \text{Copy} \int \text{trait}(T) \\) ensures that alias issues or Alias(p) are mitigated, and \\( \text{Unpin} \int \text{trait}(T) \\) avoids the hazard associated with pinned data or Pinned(p).
 
@@ -301,7 +301,7 @@ Refer to the [Rustnomicon](https://doc.rust-lang.org/nomicon/send-and-sync.html)
 
 Automatically verifying the correctness of the Send trait implementation for any type T is difficult. However, implementing the Send trait can be considered safe if T satisfies the following conditions:
 
-$$\forall field \in T,\, \text{refcount}(field) = false$$
+$$\forall field \in T,\ \text{refcount}(field) = false$$
 
 (TO FIX: This should be change to a recursive form.)
 
@@ -311,7 +311,7 @@ This is a conditional precondition for implementing the Send trait. Since implem
 
 Similar to Send(T), we can define the followin optional precondition for Sync(T):
 
-$$\forall field \in T,\, \text{interiormut}(field) = false$$
+$$\forall field \in T,\ \text{interiormut}(field) = false$$
 
 (TO FIX: This should be change to a recursive form.)
 
