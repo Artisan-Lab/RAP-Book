@@ -38,8 +38,8 @@ In practice, a safety property may correspond to a precondition, postcondition, 
 | 7  | AllocatorConsistency(p) | precond | [Box::from_raw()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_raw) |
 | 8  | Pointee(p, T)  | precond  | [ptr::read()](https://doc.rust-lang.org/beta/std/primitive.pointer.html#method.read)  |
 | 9  | Bounded(p, T, offset)  | precond | [ptr::offset()](https://doc.rust-lang.org/std/primitive.pointer.html#method.offset)  |
-| 10  | NonOverlap(\\(p_{dst}\\), \\(p_{src}\\), T, count) | precond | [ptr::copy_nonoverlapping()](https://doc.rust-lang.org/std/ptr/fn.copy_nonoverlapping.html)  |
-| 11  | NonOverlap(\\(p_{dst}\\), \\(p_{src}\\), T) | precond | [ptr::copy()](https://doc.rust-lang.org/std/ptr/fn.copy.html)  |
+| 10  | NonOverlap(p1, p2, T, count) | precond | [ptr::copy_nonoverlapping()](https://doc.rust-lang.org/std/ptr/fn.copy_nonoverlapping.html)  |
+| 11  | NonOverlap(p1, p2, T) | precond | [ptr::copy()](https://doc.rust-lang.org/std/ptr/fn.copy.html)  |
 | 12  | ValidInt(x, T)  | precond | [f32.to_int_unchecked()](https://doc.rust-lang.org/std/primitive.f32.html#method.to_int_unchecked)  |
 | 13  | ValidInt(binop, x, y, T)  | precond | [usize.add()](https://doc.rust-lang.org/std/primitive.usize.html#method.unchecked_add)  |
 | 14  | ValidInt(uop, x, T)  | precond |  |
@@ -159,13 +159,13 @@ Example APIs: [ptr::offset()](https://doc.rust-lang.org/std/primitive.pointer.ht
 
 A safety property may require the two pointers do not overlap with respect to `T`: 
 
-**psp-10: NonOverlap(\\(p_{dst}\\), \\(p_{src}\\), T)**: $$|p_{dst} - p_{src}| > \text{sizeof}(T)$$
+**psp-10: NonOverlap(p1, p2, T)**: $$|p1 - p2| > \text{sizeof}(T)$$
 
 Example APIs: [ptr::copy_from()](https://doc.rust-lang.org/std/ptr/fn.copy.html), [ptr.copy()](https://doc.rust-lang.org/std/ptr/fn.copy_from.html) 
 
 It may also require the two pointers do not overlap with respect to $T\times count$: 
 
-**psp-11: NonOverlap(\\(p_{dst}\\), \\(p_{src}\\), T, count)**: $$|p_{dst} - p_{src}| > \text{sizeof}(T) * count $$
+**psp-11: NonOverlap(p1, p2, T, count)**: $$|p1 - p2| > \text{sizeof}(T) * count $$
 
 Example APIs: [ptr::copy_nonoverlapping()](https://doc.rust-lang.org/std/ptr/fn.copy_nonoverlapping.html), [ptr.copy_from_nonoverlapping](https://doc.rust-lang.org/core/primitive.pointer.html#method.copy_from_nonoverlapping)
  
@@ -298,7 +298,7 @@ Refer to the [Rustnomicon](https://doc.rust-lang.org/nomicon/send-and-sync.html)
 
 For Send, it requires: 
 
-$$\forall field \in T, \texttt{refcount}(field) = false$$
+$$\forall field \in T, \text{refcount}(field) = false$$
 
 (TO FIX: This should be change to a recursive form.)
 
@@ -306,7 +306,7 @@ $$\forall field \in T, \texttt{refcount}(field) = false$$
 
 For Sync, it requires: 
 
-$$\forall field \in T, \texttt{interiormut}(field) = false$$
+$$\forall field \in T, \text{interiormut}(field) = false$$
 
 (TO FIX: This should be change to a recursive form.)
 
@@ -317,7 +317,7 @@ Implementing Pin for !Unpin is also valid in Rust, developers should not move th
 
 **psp-28: Pinned(p)**
 
-$$pinned(*p) = true$$
+$$\text{pinned}(*p) = true$$
 
 Example APIs: [Pin::new_unchecked()](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.new_unchecked),[Pin.into_inner_unchecked()](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.into_inner_unchecked), [Pin.map_unchecked()](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.map_unchecked), [Pin.get_unchecked_mut()](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.get_unchecked_mut), [Pin.map_unchecked_mut](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.map_unchecked_mut)
 
@@ -337,7 +337,7 @@ There are specific APIs for volatile memory access in std-lib, like [ptr::read_v
 
 **psp-30: NonVolatile(p)**
 
-$$volatile(*p) = false$$
+$$\text{volatile}(*p) = false$$
 
 Example APIs: [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html), [ptr::write()](https://doc.rust-lang.org/std/ptr/fn.write.html)
 
