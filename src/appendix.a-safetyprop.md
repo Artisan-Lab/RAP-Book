@@ -13,11 +13,17 @@ In contract design, safety properties can be categorized into two types:
 
 **Postcondition**: Traditionally, this refers to properties the system must satisfy after the API call. In Rust, it implies that the program must not violate Rust's safety requirements, such as exclusive mutability, after the API is executed. If an API has postconditions, it indicates that satisfying the preconditions alone does not guarantee program safety. Developers must also carefully analyze the API's implementation and its usage context.
 
-While preconditions and postconditions are foundational to safety reasoning, they may not always suffice in Rust. For instance, certain scenarios—such as implementing a doubly linked list or the internals of [Rc](https://doc.rust-lang.org/std/rc/struct.Rc.html) and [RefCell](https://doc.rust-lang.org/std/cell/struct.RefCell.html) require temporarily violating postconditions. In such cases, it is crucial to document how the program state deviates from Rust's safety principles and whether these vulnerabilities are eventually resolved.
+While preconditions and postconditions are foundational to safety reasoning, they may not always be sufficient in Rust. For instance, an API may include optional preconditions. If these conditions are satisfied, the Rust compiler can guarantee that the postconditions will hold. However, meeting these optional requirements is not mandatory. For example, in the case of [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html), specifying that the parameter implements the Copy trait can help avoid undefined behavior related to exclusive mutability. By meeting this optional precondition, developers can ensure safer use of the API while still having the flexibility to omit it when not needed.
 
-**Hazard (new)**: In some cases, invoking an unsafe API may temporarily leave the program in a vulnerable or inconsistent state. This new category highlights such cases, making it essential to document these hazards clearly.
+**Option (new)**: Optional preconditions for an unsafe API. If satisfying such contions, it can guarantee that the post condition can be satisfied.
+
+Besides optional preconditions, we also need to document potential hazards of Unsafe APIs. For instance, certain scenarios such as implementing a doubly linked list or the internals of [Rc](https://doc.rust-lang.org/std/rc/struct.Rc.html) and [RefCell](https://doc.rust-lang.org/std/cell/struct.RefCell.html) require temporarily violating postconditions. In such cases, it is crucial to document how the program state deviates from Rust's safety principles and whether these vulnerabilities are eventually resolved.
+
+**Hazard (new)**: Invoking an unsafe API may temporarily leave the program in a vulnerable or inconsistent state. 
 
 In practice, a safety property may correspond to a precondition, postcondition, or hazard. To address the ambiguity of certain high-level or ad hoc safety property descriptions, we propose breaking them down into primitive safety requirements. By collecting and analyzing commonly used safety descriptions, we aim to provide a clearer framework for understanding and documenting these properties. The following sections will elaborate on these details.
+
+<span style="color: red;"> **In short, while preconditions must be satisfied, optional preconditions are not mandatory. Hazards highlight vulnerabilities that deviate from Rust's safety principles. Meeting optional preconditions can help avoid certain types of hazards.** </span>
 
 ## 2. Summary of Primitive SPs
 
@@ -40,8 +46,8 @@ In practice, a safety property may correspond to a precondition, postcondition, 
 | 15  | NotOwned(p)  | precond | [Box::from_raw()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_raw)  |
 | 16  | Alias(p)  | hazard | [pointer.as_mut()](https://doc.rust-lang.org/std/primitive.pointer.html#method.as_mut) |
 | 17  | Lifetime(p, 'a)  | precond | [AtomicPtr::from_ptr()](https://doc.rust-lang.org/std/sync/atomic/struct.AtomicPtr.html#method.from_ptr)  |
-| 18  | Trait(T)  | precond | [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html)  |
-| 19  | ThreadSafe(T, Send)  | precond |   |
+| 18  | Trait(T)  | option | [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html)  |
+| 19  | ThreadSafe(T, Send)  | option |   |
 | 20  | Pinned(p)  | hazard | [Pin::new_unchecked()](https://doc.rust-lang.org/std/pin/struct.Pin.html#method.new_unchecked)  |
 | 21  | Opened(fd) | precond | [trait.FromRawFd::from_raw_fd()](https://doc.rust-lang.org/std/os/fd/trait.FromRawFd.html#tymethod.from_raw_fd)  |
 | 22  | NonVolatile(p) | precond | [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html) |
