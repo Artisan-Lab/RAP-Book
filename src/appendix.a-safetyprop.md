@@ -204,13 +204,15 @@ The safety properties of String generally requires the bytes contained in a vect
 
 Example APIs: [String::from_utf8_unchecked()](https://doc.rust-lang.org/std/string/struct.String.html#method.from_utf8_unchecked), [String.as_bytes_mut()](https://doc.rust-lang.org/std/string/struct.String.html#method.as_bytes_mut)(This API introduces hazard).
 
-**psp-17: ValidString(p, len)** $$content(p, p+len) \in utf-8$$
+**psp-17: ValidString(p, len)** $$\text{content}(p, len) \in utf-8$$
 
 Example API: [String::from_raw_parts()](https://doc.rust-lang.org/std/string/struct.String.html#method.from_raw_parts).
 
 The safety properties of CString generally requires the bytes of a u8 slice or pointed by a pointer `p` shoule contains a null terminator within isize::MAX from `p`.
 
-**psp-18: ValidCStr(p, len)** \\[\exists offset, s.t., *(p + offset) = '\0' \&\& \text{ValidInt}(offset, isize) \\]
+**psp-18: ValidCStr(p, len)** $$\exists offset, s.t., *(p + offset) = '\0' \&\& \text{ValidInt}(offset, isize) $$ 
+
+$$\exists offset$$
 
 Example API: [CStr::from_bytes_with_nul_unchecked()](https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.from_bytes_with_nul_unchecked), [CStr::from_ptr()](https://doc.rust-lang.org/std/ffi/struct.CStr.html#method.from_ptr)
 
