@@ -1,6 +1,6 @@
 # Appendix A: Privimitive Safety Properties for Rust Contract Design (Draft)
 
-This document presents a draft outlining the fundamental safety properties essential for contract definition. The current documentation on API safety descriptions in the standard library remains ad hoc. For example, the term 'valid pointer' is frequently used, but the validity of a pointer depends on the context. In practice, a valid pointer may need to satisfy one or more fundamental conditions, such as being non-null, non-dangling, and pointing to an object of type T. It is worth noting that the Rust community is making progress toward standardizing contract design, as highlighted in the links below. We believe this proposal will contribute significantly to the development of contract specifications.
+This document presents a draft outlining the fundamental safety properties essential for contract definition. The current documentation on API safety descriptions in the standard library remains ad hoc. For example, the term `valid pointer' is frequently used, but the validity of a pointer depends on the context. In practice, a valid pointer may need to satisfy one or more fundamental conditions, such as being non-null, not dangling, and pointing to memory properly aligned and initialized for type T. It is worth noting that the Rust community is making progress toward standardizing contract design, as highlighted in the links below. We believe this proposal will contribute to the development and refinement of contract specifications.
 
 [Rust Contracts RFC (draft)](https://github.com/rust-lang/lang-team/blob/master/design-meeting-minutes/2022-11-25-contracts.md)  
 [MCP759](https://github.com/rust-lang/compiler-team/issues/759)  
@@ -13,15 +13,15 @@ In contract design, safety properties can be categorized into two types:
 
 **Postcondition**: Traditionally, this refers to properties the system must satisfy after the API call. In Rust, it implies that the program must not violate Rust's safety requirements, such as exclusive mutability, after the API is executed. If an API has postconditions, it indicates that satisfying the preconditions alone does not guarantee program safety. Developers must also carefully analyze the API's implementation and its usage context.
 
-While preconditions and postconditions are foundational to safety reasoning, they may not always be sufficient in Rust. For instance, an API may include optional preconditions. If these conditions are satisfied, the Rust compiler can guarantee that the postconditions will hold. However, meeting these optional requirements is not mandatory. For example, in the case of [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html), specifying that the parameter implements the Copy trait can help avoid undefined behavior related to exclusive mutability. By meeting this optional precondition, developers can ensure safer use of the API while still having the flexibility to omit it when not needed.
+While preconditions and postconditions are foundational to safety reasoning, they may not always be sufficient in Rust. For instance, an API may include optional preconditions. If these conditions are satisfied, the Rust compiler can guarantee that the postconditions will hold. However, meeting these optional requirements is not mandatory. For example, in the case of [ptr::read()](https://doc.rust-lang.org/std/ptr/fn.read.html), specifying that the parameter implements the Copy trait can help avoid undefined behavior related to exclusive mutability. By meeting this optional precondition, developers can ensure safe use of the API while still having the flexibility to omit it when not needed.
 
 **Option (new)**: Optional preconditions for an unsafe API. If satisfying such conditions, it can guarantee that the post condition can be satisfied.
 
 Besides optional preconditions, we also need to document potential hazards of Unsafe APIs. For instance, certain scenarios such as implementing a doubly linked list or the internals of [Rc](https://doc.rust-lang.org/std/rc/struct.Rc.html) and [RefCell](https://doc.rust-lang.org/std/cell/struct.RefCell.html) require temporarily violating postconditions. In such cases, it is crucial to document how the program state deviates from Rust's safety principles and whether these vulnerabilities are eventually resolved.
 
-**Hazard (new)**: Invoking an unsafe API may temporarily leave the program in a vulnerable or inconsistent state. 
+**Hazard (new)**: Invoking an unsafe API may temporarily leave the program in a vulnerable or inconsistent state with respect to safe Rust. 
 
-In practice, a safety property may correspond to a precondition, postcondition, or hazard. To address the ambiguity of certain high-level or ad hoc safety property descriptions, we propose breaking them down into primitive safety requirements. By collecting and analyzing commonly used safety descriptions, we aim to provide a clearer framework for understanding and documenting these properties. The following sections will elaborate on these details.
+In practice, a safety property may correspond to a precondition, optional precondition, or hazard. To address the ambiguity of certain high-level or ad hoc safety property descriptions, we propose breaking them down into primitive safety requirements. By collecting and analyzing commonly used safety descriptions, we aim to provide a clearer framework for understanding and documenting these properties. The following sections will elaborate on these details.
 
 <span style="color: red;"> **In short, while preconditions must be satisfied, optional preconditions are not mandatory. Hazards highlight vulnerabilities that deviate from Rust's safety principles. Meeting optional preconditions can help avoid certain types of hazards.** </span>
 
@@ -33,7 +33,7 @@ In practice, a safety property may correspond to a precondition, postcondition, 
 | 2  | NonZST(T) | precond | [NonNull.offset_from](https://doc.rust-lang.org/core/ptr/struct.NonNull.html#method.offset_from)  | 
 | 3  | NoPadding(T)  | precond  | [raw_eq()](https://doc.rust-lang.org/std/intrinsics/fn.raw_eq.html) |
 | 4  | NonNull(p) | precond  | [NonNull::new_unchecked()](https://doc.rust-lang.org/std/ptr/struct.NonNull.html#method.new_unchecked) |
-| 5  | NonDangling(p, T) | precond| [ptr::offset()](https://doc.rust-lang.org/beta/std/primitive.pointer.html#method.offset) |
+| 5  | NotDangling(p, T) | precond| [ptr::offset()](https://doc.rust-lang.org/beta/std/primitive.pointer.html#method.offset) |
 | 6  | AllocatorConsistency(p, A) | precond | [Box::from_raw_in()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_raw_in) |
 | 7  | AllocatorConsistency(p) | precond | [Box::from_raw()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_raw) |
 | 8  | Pointee(p, T)  | precond  | [ptr::read()](https://doc.rust-lang.org/beta/std/primitive.pointer.html#method.read)  |
@@ -118,11 +118,11 @@ To determine whether the memory address referenced by a pointer is available for
 
 In practice, an API may enforce that a pointer `p` to a type `T` must satisfy the non-dangling property.
 
-**psp-5: NonDangling(p, T)**: 
+**psp-5: NotDangling(p, T)**: 
 
 $$\text{allocator}(p) = x, \ x \in \lbrace \text{GlobalAllocator}, \text{OtherAllocator}, \text{stack} \rbrace || \text{sizeof}(T) = 0 $$ 
 
-**Proposition 1** (NOT SURE): NonDangling(p, T) implies NonNull(p).
+**Proposition 1** (NOT SURE): NotDangling(p, T) implies NonNull(p).
 
 Example API: [ptr::offset()](https://doc.rust-lang.org/beta/std/primitive.pointer.html#method.offset), [Box::from_raw()](https://doc.rust-lang.org/beta/std/boxed/struct.Box.html#method.from_raw)
 
@@ -144,7 +144,7 @@ A safety property may require that a pointer `p` refers to a value of a specific
 
 **psp-8: Pointee(p, T)**: $$\text{typeof}(*p) = T $$
 
-**Proposition 2** (NOT SURE): Pointee(p, T) implies NonDangling(p, T) and  NonNull(p).
+**Proposition 2** (NOT SURE): Pointee(p, T) implies NotDangling(p, T) and  NonNull(p).
 
 Example APIs: [ptr::read()](https://doc.rust-lang.org/beta/std/primitive.pointer.html#method.read), [ptr::offset()](https://doc.rust-lang.org/beta/std/primitive.pointer.html#method.offset)
 
