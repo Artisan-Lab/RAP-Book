@@ -105,7 +105,7 @@ Example API: intrinsic [raw_eq()](https://doc.rust-lang.org/std/intrinsics/fn.ra
 Referring to the [pointer validity](https://doc.rust-lang.org/std/ptr/index.html#safety) documentation, whether a pointer is valid depends on the context of its usage, and the criteria vary across different APIs. To better describe pointer validity and reduce ambiguity, we break down the concept into several primitive components.
 
 #### Address
-The memory address that the pointer refers to is critical. A safety property may require the pointer `p` to be non-null, as the behavior of accessing a null pointer is undefined. This property can be formalized as:
+The memory address that the pointer refers to is critical. A safety property may require the pointer `p` to be non-null, as the behavior of dereferencing a null pointer is undefined. This property can be formalized as:
 
 **psp-4: NonNull(p)**: $$p != \text{null}$$
 
