@@ -70,7 +70,7 @@ In practice, a safety property may correspond to a precondition, optional precon
 Refer to the document of [type-layout](https://doc.rust-lang.org/reference/type-layout.html), there are three components related to layout: alignment, size, and padding.
 
 #### 3.1.1 Alignment
-Alignment is measured in bytes. It must be at least 1 and is always a power of 2. This can be expressed as \\(2^x, x\ge 0\\). A memory address of type `T` is considered aligned if the address is a multiple of alignment(T). The alignment requirement can be formalized as:
+Alignment is measured in bytes. It must be at least 1 and is always a power of 2. This can be expressed as \\(2^x s.t. x\ge 0\\). A memory address of type `T` is considered aligned if the address is a multiple of alignment(T). The alignment requirement can be formalized as:
 
 $$ \text{addressof}(\text{instance}(T)) \\% \text{alignment}(T) = 0 $$
 
