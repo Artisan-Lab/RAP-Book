@@ -81,7 +81,7 @@ Example APIs: [ptr::read()](https://doc.rust-lang.org/nightly/std/ptr/fn.read.ht
 #### 3.1.2 Size 
 The size of a value is the offset in bytes between successive elements in an array with that item type including alignment padding. It is always a multiple of its alignment (including 0), i.e., \\(\text{sizeof}(T) \\% \text{alignment}(T)=0$\\). 
 
-A safety property may require the size of a type `T` to be not zero. We can formulate the requirement as 
+A safety property may require the size of a type `T` cannot be zero. We can formulate the requirement as 
 
 **psp-2: NonZST(T)**: $$\text{sizeof}(T) > 0$$
 
