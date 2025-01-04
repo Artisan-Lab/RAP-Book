@@ -81,7 +81,7 @@ Example APIs: [ptr::read()](https://doc.rust-lang.org/nightly/std/ptr/fn.read.ht
 #### 3.1.2 Size 
 The size of a value is the offset in bytes between successive elements in an array with that item type including alignment padding. It is always a multiple of its alignment (including 0), i.e., \\(\text{sizeof}(T) \\% \text{alignment}(T)=0$\\). 
 
-A safety property may require the size of a type `T` to be not ZST. We can formulate the requirement as 
+A safety property may require the size of a type `T` to be not zero. We can formulate the requirement as 
 
 **psp-2: NonZST(T)**: $$\text{sizeof}(T) > 0$$
 
@@ -107,7 +107,7 @@ Referring to the [pointer validity](https://doc.rust-lang.org/std/ptr/index.html
 #### Address
 The memory address that the pointer refers to is critical. A safety property may require the pointer `p` to be non-null, as the behavior of a null pointer is undefined. This property can be formalized as:
 
-**psp-4: NonNull(p)**: $$p != null$$
+**psp-4: NonNull(p)**: $$p != \text{null}$$
 
 Example APIs: [NonNull::new_unchecked()](https://doc.rust-lang.org/std/ptr/struct.NonNull.html#method.new_unchecked), [Box::from_non_null()](https://doc.rust-lang.org/std/boxed/struct.Box.html#method.from_non_null)
 
