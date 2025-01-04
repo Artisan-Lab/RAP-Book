@@ -70,9 +70,7 @@ In practice, a safety property may correspond to a precondition, optional precon
 Refer to the document of [type-layout](https://doc.rust-lang.org/reference/type-layout.html), there are three components related to layout: alignment, size, and padding.
 
 #### 3.1.1 Alignment
-Alignment is measured in bytes. It must be at least 1 and is always a power of 2. This can be expressed as \\(2^x s.t. x\ge 0\\). A memory address of type `T` is considered aligned if the address is a multiple of alignment(T). The alignment requirement can be formalized as:
-
-$$ \text{addressof}(\text{instance}(T)) \\% \text{alignment}(T) = 0 $$
+Alignment is measured in bytes. It must be at least 1 and is always a power of 2. This can be expressed as \\(2^x s.t. x\ge 0\\). A memory address of type `T` is considered aligned if the address is a multiple of alignment(T). The alignment requirement can be formalized as \\(\text{addressof}(\text{instance}(T)) \\% \text{alignment}(T) = 0 \\)
 
 In practice, we generally require a pointer `p` of type `T∗` to be aligned. This property can be formalized as:
 
@@ -81,7 +79,7 @@ In practice, we generally require a pointer `p` of type `T∗` to be aligned. Th
 Example APIs: [ptr::read()](https://doc.rust-lang.org/nightly/std/ptr/fn.read.html), [ptr::write()](https://doc.rust-lang.org/std/ptr/fn.write.html), [Vec::from_raw_parts()](https://doc.rust-lang.org/beta/std/vec/struct.Vec.html#method.from_raw_parts)
 
 #### 3.1.2 Size 
-The size of a value is the offset in bytes between successive elements in an array with that item type including alignment padding. It is always a multiple of its alignment (including 0), i.e., $\text{sizeof}(T) \\% \text{alignment}(T)=0$. 
+The size of a value is the offset in bytes between successive elements in an array with that item type including alignment padding. It is always a multiple of its alignment (including 0), i.e., \\(\text{sizeof}(T) \\% \text{alignment}(T)=0$\\). 
 
 A safety property may require the size of a type `T` to be not ZST. We can formulate the requirement as 
 
